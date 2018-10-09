@@ -1,4 +1,4 @@
-package widget
+package washeet
 
 import (
 	"syscall/js"

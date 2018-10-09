@@ -1,4 +1,4 @@
-package widget
+package washeet
 
 func ceilInt64(num int64, den int64) int64 {
 	result := num / den
