@@ -27,3 +27,7 @@ func noStrokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64,
 func strokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor, fillColor string) {
 
 }
+
+func strokeNoFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor string) {
+
+}

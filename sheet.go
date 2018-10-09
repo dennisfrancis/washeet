@@ -154,7 +154,7 @@ func (self *Sheet) computeLayout() {
 			break
 		}
 
-		cellStartX += self.dataSource.GetColumnWidth(currCol)
+		cellStartX += math.Max(self.dataSource.GetColumnWidth(currCol), DEFAULT_CELL_WIDTH)
 		currCol++
 		colIdx++
 	}
@@ -172,7 +172,7 @@ func (self *Sheet) computeLayout() {
 			break
 		}
 
-		cellStartY += self.dataSource.GetRowHeight(currRow)
+		cellStartY += math.Max(self.dataSource.GetRowHeight(currRow), DEFAULT_CELL_HEIGHT)
 		currRow++
 		rowIdx++
 	}
@@ -278,13 +278,24 @@ func (self *Sheet) servePaintSelectionRequest() {
 	}
 
 	c1, r1, c2, r2 := self.trimRangeToView(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
-	_, _, _, _, xlow, xhigh, ylow, yhigh := self.getIndicesAndRect(c1, r1, c2, r2)
+	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := self.getIndicesAndRect(c1, r1, c2, r2)
 
 	if !self.mark.IsSingleCell() {
 		strokeFillRect(self.canvasContext, xlow, ylow, xhigh, yhigh, SELECTION_STROKE_COLOR, SELECTION_FILL_COLOR)
 	}
 
-	// !!!!!!!!!!!!!!!!!! TODO: For first top-left cell, draw thick border and last cell (bottom-right)
+	xFirstCellEnd := minInt64(self.colStartXCoords[ci1+1], self.maxX)
+	yFirstCellEnd := minInt64(self.rowStartYCoords[ri1+1], self.maxY)
+	strokeNoFillRect(self.canvasContext, xlow, ylow, xFirstCellEnd, yFirstCellEnd, CURSOR_STROKE_COLOR)
+	strokeNoFillRect(self.canvasContext, xlow+2, ylow+2, xFirstCellEnd-2, yFirstCellEnd-2, CURSOR_STROKE_COLOR)
+
+	if c2 == self.mark.C2 && r2 == self.mark.R2 {
+		xLastCellEnd := self.colStartXCoords[ci2+1]
+		yLastCellEnd := self.rowStartYCoords[ri2+1]
+		if xLastCellEnd <= self.maxX && yLastCellEnd <= self.maxY {
+			strokeFillRect(self.canvasContext, xLastCellEnd-2, yLastCellEnd-2, xLastCellEnd, yLastCellEnd, CURSOR_STROKE_COLOR, CURSOR_STROKE_COLOR)
+		}
+	}
 }
 
 func (self *Sheet) drawHeaders() {
@@ -292,7 +303,13 @@ func (self *Sheet) drawHeaders() {
 	if self == nil {
 		return
 	}
-	// TODO: draw headers in the same way we did drawRange.
+
+	// column header outline
+	strokeFillRect(self.canvasContext, self.origX, self.origY, self.maxX, self.origY+DEFAULT_CELL_HEIGHT, GRID_LINE_COLOR, HEADER_FILL_COLOR)
+	// TODO: draw column header separators and labels (center aligned)
+	// row header outile
+	strokeFillRect(self.canvasContext, self.origX, self.origY, self.origX+DEFAULT_CELL_WIDTH, self.maxY, GRID_LINE_COLOR, HEADER_FILL_COLOR)
+	// TODO: draw row header separators and labels (center aligned)
 }
 
 // Warning : no limit check for args here !
