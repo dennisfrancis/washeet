@@ -31,3 +31,7 @@ func strokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, s
 func strokeNoFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor string) {
 
 }
+
+func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax float64, text string, align TextAlignType) {
+
+}

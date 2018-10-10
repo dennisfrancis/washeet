@@ -38,6 +38,14 @@ type SheetPaintRequest struct {
 	EndRow int64
 }
 
+type TextAlignType byte
+
+const (
+	AlignLeft TextAlignType = iota
+	AlignCenter
+	AlignRight
+)
+
 type SheetDataProvider interface {
 	GetDisplayString(column int64, row int64) string
 	GetColumnWidth(column int64) float64
@@ -304,12 +312,31 @@ func (self *Sheet) drawHeaders() {
 		return
 	}
 
+	numColsInView := self.endColumn - self.startColumn + 1
+	numRowsInView := self.endRow - self.startRow + 1
+
 	// column header outline
 	strokeFillRect(self.canvasContext, self.origX, self.origY, self.maxX, self.origY+DEFAULT_CELL_HEIGHT, GRID_LINE_COLOR, HEADER_FILL_COLOR)
-	// TODO: draw column header separators and labels (center aligned)
+	// draw column header separators
+	drawVertLines(self.canvasContext, self.colStartXCoords[0:numColsInView], self.origY, self.origY+DEFAULT_CELL_HEIGHT, GRID_LINE_COLOR)
+	// draw col labels (center aligned)
+	for nCol, nColIdx := self.startColumn, int64(0); nCol <= self.endColumn; nCol, nColIdx = nCol+1, nColIdx+1 {
+		drawText(self.canvasContext, self.colStartXCoords[nColIdx], self.origY,
+			self.colStartXCoords[nColIdx+1], self.origY+DEFAULT_CELL_HEIGHT,
+			self.maxX, self.maxY,
+			number2ColLabel(nCol), AlignCenter)
+	}
 	// row header outile
 	strokeFillRect(self.canvasContext, self.origX, self.origY, self.origX+DEFAULT_CELL_WIDTH, self.maxY, GRID_LINE_COLOR, HEADER_FILL_COLOR)
-	// TODO: draw row header separators and labels (center aligned)
+	// draw row header separators
+	drawHorizLines(self.canvasContext, self.rowStartYCoords[0:numRowsInView], self.origX, self.origX+DEFAULT_CELL_WIDTH, GRID_LINE_COLOR)
+	// draw row labels (center aligned)
+	for nRow, nRowIdx := self.startRow, int64(0); nRow <= self.endRow; nRow, nRowIdx = nRow+1, nRowIdx+1 {
+		drawText(self.canvasContext, self.origX, self.rowStartYCoords[nRowIdx],
+			self.origX+DEFAULT_CELL_WIDTH, self.rowStartYCoords[nRowIdx+1],
+			self.maxX, self.maxY,
+			number2RowLabel(nRow), AlignCenter)
+	}
 }
 
 // Warning : no limit check for args here !
@@ -344,9 +371,13 @@ func (self *Sheet) drawCellRangeContents(c1, r1, c2, r2 int64) {
 
 	startXIdx, endXIdx, startYIdx, endYIdx := self.getIndices(c1, r1, c2, r2)
 
-	for cidx := startXIdx; cidx <= endXIdx; cidx++ {
-		for ridx := startYIdx; ridx <= endYIdx; ridx++ {
-			// TODO: write a single cell content drawing function. pass (cellstartX, cellstartY, cellWidth, cellHeight)
+	for cidx, nCol := startXIdx, c1; cidx <= endXIdx; cidx, nCol = cidx+1, nCol+1 {
+		for ridx, nRow := startYIdx, r1; ridx <= endYIdx; ridx, nRow = ridx+1, nRow+1 {
+
+			drawText(self.canvasContext, self.colStartXCoords[cidx], self.rowStartYCoords[ridx],
+				self.colStartXCoords[cidx+1], self.rowStartYCoords[ridx+1],
+				self.maxX, self.maxY,
+				self.dataSource.GetDisplayString(nCol, nRow), AlignRight)
 		}
 	}
 }

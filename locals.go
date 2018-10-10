@@ -24,3 +24,11 @@ func maxInt64(n1 int64, n2 int64) int64 {
 	}
 	return result
 }
+
+func col2ColLabel(nCol int64) string {
+
+}
+
+func row2RowLabel(nRow int64) string {
+
+}
