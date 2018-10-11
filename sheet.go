@@ -196,6 +196,9 @@ func (self *Sheet) Start() {
 
 	self.renderFrame = &js.NewCallback(func(args []js.Value) {
 		self.processQueue()
+		if self.renderFrame == nil {
+			return
+		}
 		js.Global().Call("requestAnimationFrame", *self.renderFrame)
 	})
 
