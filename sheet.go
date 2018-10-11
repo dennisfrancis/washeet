@@ -55,7 +55,7 @@ type SheetDataProvider interface {
 type SheetModelUpdater interface {
 	SetColumnWidth(column int64, width float64)
 	SetRowHeight(row int64, height float64)
-	SetCellContent(content string)
+	SetCellContent(row, column int64, content string)
 }
 
 type MarkData struct {
@@ -88,7 +88,7 @@ type Sheet struct {
 	dataSource SheetDataProvider
 	dataSink   SheetModelUpdater
 
-	renderFrame *js.Callback
+	renderFrame js.Callback
 
 	startColumn int64
 	startRow    int64
@@ -101,7 +101,8 @@ type Sheet struct {
 	colStartXCoords []float64
 	rowStartYCoords []float64
 
-	mark MarkData
+	mark       MarkData
+	stopSignal bool
 }
 
 func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, maxY float64,
@@ -120,15 +121,16 @@ func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, m
 		maxY:            maxY,
 		dataSource:      dSrc,
 		dataSink:        dSink,
-		renderFrame:     nil,
+		renderFrame:     js.NewCallback(func(args []js.Value) {}),
 		startColumn:     int64(0),
 		startRow:        int64(0),
 		endColumn:       int64(0),
 		endRow:          int64(0),
 		paintQueue:      make(chan *SheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
-		colStartXCoords: make([]float64, 0, ceil_int64(maxX-startX+1, DEFAULT_CELL_WIDTH)),
-		rowStartYCoords: make([]float64, 0, ceil_int64(maxY-startY+1, DEFAULT_CELL_HEIGHT)),
+		colStartXCoords: make([]float64, 0, int(math.Ceil((maxX-startX+1)/DEFAULT_CELL_WIDTH))),
+		rowStartYCoords: make([]float64, 0, int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
 		mark:            MarkData{0, 0, 0, 0},
+		stopSignal:      false,
 	}
 
 	// Compute endColumn/endRow colStartXCoords/rowStartYCoords
@@ -190,28 +192,29 @@ func (self *Sheet) computeLayout() {
 
 func (self *Sheet) Start() {
 
-	if self == nil || self.renderFrame != nil {
+	if self == nil {
 		return
 	}
 
-	self.renderFrame = &js.NewCallback(func(args []js.Value) {
+	self.stopSignal = false
+	self.renderFrame = js.NewCallback(func(args []js.Value) {
 		self.processQueue()
-		if self.renderFrame == nil {
+		if self.stopSignal {
 			return
 		}
-		js.Global().Call("requestAnimationFrame", *self.renderFrame)
+		js.Global().Call("requestAnimationFrame", self.renderFrame)
 	})
 
-	js.Global().Call("requestAnimationFrame", *self.renderFrame)
+	js.Global().Call("requestAnimationFrame", self.renderFrame)
 }
 
 func (self *Sheet) Stop() {
 
-	if self == nil || self.renderFrame == nil {
+	if self == nil || self.stopSignal {
 		return
 	}
+	self.stopSignal = true
 	self.renderFrame.Release()
-	self.renderFrame = nil
 	// TODO : clear the widget area.
 }
 
