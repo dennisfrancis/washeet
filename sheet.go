@@ -127,8 +127,8 @@ func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, m
 		endColumn:       int64(0),
 		endRow:          int64(0),
 		paintQueue:      make(chan *SheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
-		colStartXCoords: make([]float64, 0, int(math.Ceil((maxX-startX+1)/DEFAULT_CELL_WIDTH))),
-		rowStartYCoords: make([]float64, 0, int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
+		colStartXCoords: make([]float64, 0, 1+int(math.Ceil((maxX-startX+1)/DEFAULT_CELL_WIDTH))),
+		rowStartYCoords: make([]float64, 0, 1+int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
 		mark:            MarkData{0, 0, 0, 0},
 		stopSignal:      false,
 	}
@@ -229,7 +229,7 @@ func (self *Sheet) processQueue() {
 	// Process all requests on the queue and return
 	for {
 		select {
-		case request <- self.paintQueue:
+		case request = <-self.paintQueue:
 			self.servePaintRequest(request)
 		default:
 			return
@@ -298,8 +298,8 @@ func (self *Sheet) servePaintSelectionRequest() {
 		strokeFillRect(self.canvasContext, xlow, ylow, xhigh, yhigh, SELECTION_STROKE_COLOR, SELECTION_FILL_COLOR)
 	}
 
-	xFirstCellEnd := minInt64(self.colStartXCoords[ci1+1], self.maxX)
-	yFirstCellEnd := minInt64(self.rowStartYCoords[ri1+1], self.maxY)
+	xFirstCellEnd := math.Min(self.colStartXCoords[ci1+1], self.maxX)
+	yFirstCellEnd := math.Min(self.rowStartYCoords[ri1+1], self.maxY)
 	strokeNoFillRect(self.canvasContext, xlow, ylow, xFirstCellEnd, yFirstCellEnd, CURSOR_STROKE_COLOR)
 	strokeNoFillRect(self.canvasContext, xlow+2, ylow+2, xFirstCellEnd-2, yFirstCellEnd-2, CURSOR_STROKE_COLOR)
 
@@ -330,7 +330,7 @@ func (self *Sheet) drawHeaders() {
 		drawText(self.canvasContext, self.colStartXCoords[nColIdx], self.origY,
 			self.colStartXCoords[nColIdx+1], self.origY+DEFAULT_CELL_HEIGHT,
 			self.maxX, self.maxY,
-			number2ColLabel(nCol), AlignCenter)
+			col2ColLabel(nCol), AlignCenter)
 	}
 	// row header outile
 	strokeFillRect(self.canvasContext, self.origX, self.origY, self.origX+DEFAULT_CELL_WIDTH, self.maxY, GRID_LINE_COLOR, HEADER_FILL_COLOR)
@@ -341,7 +341,7 @@ func (self *Sheet) drawHeaders() {
 		drawText(self.canvasContext, self.origX, self.rowStartYCoords[nRowIdx],
 			self.origX+DEFAULT_CELL_WIDTH, self.rowStartYCoords[nRowIdx+1],
 			self.maxX, self.maxY,
-			number2RowLabel(nRow), AlignCenter)
+			row2RowLabel(nRow), AlignCenter)
 	}
 }
 
@@ -405,7 +405,7 @@ func (self *Sheet) getIndices(c1, r1, c2, r2 int64) (startXIdx, endXIdx, startYI
 func (self *Sheet) getIndicesAndRect(c1, r1, c2, r2 int64) (startXIdx, endXIdx, startYIdx, endYIdx int64,
 	xlow, xhigh, ylow, yhigh float64) {
 
-	startXIdx, endXIdx, startYIdx, endYIdx = getIndices(c1, r1, c2, r2)
+	startXIdx, endXIdx, startYIdx, endYIdx = self.getIndices(c1, r1, c2, r2)
 
 	xlow = self.colStartXCoords[startXIdx]
 	xhigh = math.Min(self.colStartXCoords[endXIdx+1], self.maxX) // end of last column in view
