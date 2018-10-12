@@ -215,7 +215,8 @@ func (self *Sheet) Stop() {
 	}
 	self.stopSignal = true
 	self.renderFrame.Release()
-	// TODO : clear the widget area.
+	// clear the widget area.
+	noStrokeFillRect(self.canvasContext, self.origX, self.origY, self.maxX, self.maxY, CELL_DEFAULT_FILL_COLOR)
 }
 
 func (self *Sheet) processQueue() {
