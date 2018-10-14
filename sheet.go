@@ -135,6 +135,7 @@ func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, m
 
 	// Compute endColumn/endRow colStartXCoords/rowStartYCoords
 	ret.computeLayout()
+	setFont(ret.canvasContext, "14px serif")
 
 	return ret
 }
