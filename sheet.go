@@ -1,22 +1,24 @@
 package washeet
 
 import (
+	//	"fmt"
 	"math"
 	"syscall/js"
+	"time"
 )
 
 const (
 	MAXROWCOUNT              int64   = 1048576
 	MAXCOLCOUNT              int64   = 16384
 	DEFAULT_CELL_WIDTH       float64 = 120.0
-	DEFAULT_CELL_HEIGHT      float64 = 50.0
+	DEFAULT_CELL_HEIGHT      float64 = 30.0
 	SHEET_PAINT_QUEUE_LENGTH int     = 10
 
 	GRID_LINE_COLOR           string = "rgba(50, 50, 50, 1.0)"
 	CELL_DEFAULT_FILL_COLOR   string = "rgba(255, 255, 255, 1.0)"
 	CELL_DEFAULT_STROKE_COLOR string = "rgba(0, 0, 0, 1.0)" // fonts etc.
 	CURSOR_STROKE_COLOR       string = "rgba(0, 0, 0, 1.0)"
-	HEADER_FILL_COLOR         string = "rgba(100, 100, 100, 1.0)"
+	HEADER_FILL_COLOR         string = "rgba(200, 200, 200, 1.0)"
 	SELECTION_STROKE_COLOR    string = "rgba(0, 0, 50, 0.9)"
 	SELECTION_FILL_COLOR      string = "rgba(0, 0, 200, 0.2)"
 )
@@ -88,7 +90,7 @@ type Sheet struct {
 	dataSource SheetDataProvider
 	dataSink   SheetModelUpdater
 
-	renderFrame js.Callback
+	rafPendingQueue chan js.Value
 
 	startColumn int64
 	startRow    int64
@@ -101,8 +103,9 @@ type Sheet struct {
 	colStartXCoords []float64
 	rowStartYCoords []float64
 
-	mark       MarkData
-	stopSignal bool
+	mark         MarkData
+	stopSignal   bool
+	stopWaitChan chan bool
 }
 
 func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, maxY float64,
@@ -121,7 +124,7 @@ func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, m
 		maxY:            maxY,
 		dataSource:      dSrc,
 		dataSink:        dSink,
-		renderFrame:     js.NewCallback(func(args []js.Value) {}),
+		rafPendingQueue: make(chan js.Value, SHEET_PAINT_QUEUE_LENGTH),
 		startColumn:     int64(0),
 		startRow:        int64(0),
 		endColumn:       int64(0),
@@ -129,13 +132,15 @@ func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, m
 		paintQueue:      make(chan *SheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
 		colStartXCoords: make([]float64, 0, 1+int(math.Ceil((maxX-startX+1)/DEFAULT_CELL_WIDTH))),
 		rowStartYCoords: make([]float64, 0, 1+int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
-		mark:            MarkData{0, 0, 0, 0},
+		mark:            MarkData{0, 0, 6, 6},
 		stopSignal:      false,
+		stopWaitChan:    make(chan bool),
 	}
 
 	// Compute endColumn/endRow colStartXCoords/rowStartYCoords
 	ret.computeLayout()
 	setFont(ret.canvasContext, "14px serif")
+	ret.PaintWholeSheet()
 
 	return ret
 }
@@ -198,15 +203,7 @@ func (self *Sheet) Start() {
 	}
 
 	self.stopSignal = false
-	self.renderFrame = js.NewCallback(func(args []js.Value) {
-		self.processQueue()
-		if self.stopSignal {
-			return
-		}
-		js.Global().Call("requestAnimationFrame", self.renderFrame)
-	})
-
-	js.Global().Call("requestAnimationFrame", self.renderFrame)
+	go self.processQueue()
 }
 
 func (self *Sheet) Stop() {
@@ -215,9 +212,9 @@ func (self *Sheet) Stop() {
 		return
 	}
 	self.stopSignal = true
-	self.renderFrame.Release()
 	// clear the widget area.
 	noStrokeFillRect(self.canvasContext, self.origX, self.origY, self.maxX, self.maxY, CELL_DEFAULT_FILL_COLOR)
+	<-self.stopWaitChan
 }
 
 func (self *Sheet) processQueue() {
@@ -226,15 +223,24 @@ func (self *Sheet) processQueue() {
 		return
 	}
 
-	var request *SheetPaintRequest = nil
-
-	// Process all requests on the queue and return
 	for {
 		select {
-		case request = <-self.paintQueue:
-			self.servePaintRequest(request)
+		case request := <-self.paintQueue:
+			currRFRequest := js.NewCallback(func(args []js.Value) {
+				self.servePaintRequest(request)
+				<-self.rafPendingQueue
+			})
+			self.rafPendingQueue <- js.Global().Call("requestAnimationFrame", currRFRequest)
 		default:
-			return
+			if self.stopSignal {
+				close(self.rafPendingQueue)
+				for reqID := range self.rafPendingQueue {
+					js.Global().Call("cancelAnimationFrame", reqID)
+				}
+				self.stopWaitChan <- true
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }
@@ -309,7 +315,7 @@ func (self *Sheet) servePaintSelectionRequest() {
 		xLastCellEnd := self.colStartXCoords[ci2+1]
 		yLastCellEnd := self.rowStartYCoords[ri2+1]
 		if xLastCellEnd <= self.maxX && yLastCellEnd <= self.maxY {
-			strokeFillRect(self.canvasContext, xLastCellEnd-2, yLastCellEnd-2, xLastCellEnd, yLastCellEnd, CURSOR_STROKE_COLOR, CURSOR_STROKE_COLOR)
+			strokeFillRect(self.canvasContext, xLastCellEnd-6, yLastCellEnd-6, xLastCellEnd, yLastCellEnd, CURSOR_STROKE_COLOR, CURSOR_STROKE_COLOR)
 		}
 	}
 }
@@ -328,6 +334,7 @@ func (self *Sheet) drawHeaders() {
 	// draw column header separators
 	drawVertLines(self.canvasContext, self.colStartXCoords[0:numColsInView], self.origY, self.origY+DEFAULT_CELL_HEIGHT, GRID_LINE_COLOR)
 	// draw col labels (center aligned)
+	setFillColor(self.canvasContext, CELL_DEFAULT_STROKE_COLOR)
 	for nCol, nColIdx := self.startColumn, int64(0); nCol <= self.endColumn; nCol, nColIdx = nCol+1, nColIdx+1 {
 		drawText(self.canvasContext, self.colStartXCoords[nColIdx], self.origY,
 			self.colStartXCoords[nColIdx+1], self.origY+DEFAULT_CELL_HEIGHT,
@@ -339,6 +346,7 @@ func (self *Sheet) drawHeaders() {
 	// draw row header separators
 	drawHorizLines(self.canvasContext, self.rowStartYCoords[0:numRowsInView], self.origX, self.origX+DEFAULT_CELL_WIDTH, GRID_LINE_COLOR)
 	// draw row labels (center aligned)
+	setFillColor(self.canvasContext, CELL_DEFAULT_STROKE_COLOR)
 	for nRow, nRowIdx := self.startRow, int64(0); nRow <= self.endRow; nRow, nRowIdx = nRow+1, nRowIdx+1 {
 		drawText(self.canvasContext, self.origX, self.rowStartYCoords[nRowIdx],
 			self.origX+DEFAULT_CELL_WIDTH, self.rowStartYCoords[nRowIdx+1],
@@ -378,6 +386,8 @@ func (self *Sheet) drawRange(c1, r1, c2, r2 int64) {
 func (self *Sheet) drawCellRangeContents(c1, r1, c2, r2 int64) {
 
 	startXIdx, endXIdx, startYIdx, endYIdx := self.getIndices(c1, r1, c2, r2)
+
+	setFillColor(self.canvasContext, CELL_DEFAULT_STROKE_COLOR)
 
 	for cidx, nCol := startXIdx, c1; cidx <= endXIdx; cidx, nCol = cidx+1, nCol+1 {
 		for ridx, nRow := startYIdx, r1; ridx <= endYIdx; ridx, nRow = ridx+1, nRow+1 {
@@ -430,6 +440,11 @@ func (self *Sheet) addPaintRequest(request *SheetPaintRequest) {
 		return
 	}
 	self.paintQueue <- request
+}
+
+func (self *Sheet) PaintWholeSheet() {
+	req := &SheetPaintRequest{Kind: SheetPaintWholeSheet}
+	self.addPaintRequest(req)
 }
 
 func (self *Sheet) PaintCell(col int64, row int64) {
