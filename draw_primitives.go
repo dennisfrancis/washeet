@@ -73,8 +73,7 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 	addRect2Path(&path, xlow, ylow, xend-1.0, yend-1.0)
 	canvasContext.Call("clip", path)
 
-	//txtMetric := canvasContext.Call("measureText", text)
-	canvasContext.Set("textBaseline", "alphabetic")
+	canvasContext.Set("textBaseline", "bottom")
 	startx, starty := xlow, yhigh // yhigh assuming English like language.
 	if align == AlignLeft {
 		canvasContext.Set("textAlign", "left")
@@ -98,4 +97,12 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 
 func setFont(canvasContext *js.Value, fontCSS string) {
 	canvasContext.Set("font", fontCSS)
+}
+
+func setFillColor(canvasContext *js.Value, fillColor string) {
+	canvasContext.Set("fillStyle", fillColor)
+}
+
+func setStrokeColor(canvasContext *js.Value, strokeColor string) {
+	canvasContext.Set("strokeStyle", strokeColor)
 }
