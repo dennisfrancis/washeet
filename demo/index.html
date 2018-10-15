@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>Golang wasm Spreadsheet demo</title>
+    <script src="wasm_exec.js"></script>
+    <script>
+      const go = new Go();
+      WebAssembly.instantiateStreaming(fetch('main.wasm'),go.importObject).then( res=> {
+	  go.run(res.instance)
+      });
+    </script>
+  </head>
+
+  <body>
+    <button id="close-button">Quit</button><br>
+    <canvas id="washeet"></canvas>
+  </body>
+</html>
