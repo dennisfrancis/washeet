@@ -106,3 +106,7 @@ func setFillColor(canvasContext *js.Value, fillColor string) {
 func setStrokeColor(canvasContext *js.Value, strokeColor string) {
 	canvasContext.Set("strokeStyle", strokeColor)
 }
+
+func setLineWidth(canvasContext *js.Value, width float64) {
+	canvasContext.Set("lineWidth", width)
+}

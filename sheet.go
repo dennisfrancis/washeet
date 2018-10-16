@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	//	"fmt"
+	"fmt"
 	"math"
 	"syscall/js"
 	"time"
@@ -107,10 +107,16 @@ type Sheet struct {
 	mark         MarkData
 	stopSignal   bool
 	stopWaitChan chan bool
+
+	clickHandler js.Callback
 }
 
 func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, maxX float64, maxY float64,
 	dSrc SheetDataProvider, dSink SheetModelUpdater) *Sheet {
+
+	// HACK : Adjust for line width of 1.0
+	maxX -= 1.0
+	maxY -= 1.0
 
 	if context == nil || startX+DEFAULT_CELL_WIDTH*10 >= maxX ||
 		startY+DEFAULT_CELL_HEIGHT*10 >= maxY {
@@ -139,7 +145,11 @@ func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, 
 		stopWaitChan:    make(chan bool),
 	}
 
+	// TODO : Move these somewhere else
 	setFont(ret.canvasContext, "14px serif")
+	setLineWidth(ret.canvasContext, 1.0)
+
+	ret.setUpClickHandler()
 	ret.PaintWholeSheet()
 
 	return ret
@@ -211,10 +221,28 @@ func (self *Sheet) Stop() {
 	if self == nil || self.stopSignal {
 		return
 	}
+	self.canvasElement.Call("removeEventListener", "click", self.clickHandler)
+	self.clickHandler.Release()
 	self.stopSignal = true
 	// clear the widget area.
-	noStrokeFillRect(self.canvasContext, self.origX, self.origY, self.maxX, self.maxY, CELL_DEFAULT_FILL_COLOR)
+	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
+	noStrokeFillRect(self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
 	<-self.stopWaitChan
+}
+
+func (self *Sheet) setUpClickHandler() {
+	if self == nil {
+		return
+	}
+
+	self.clickHandler = js.NewCallback(func(args []js.Value) {
+		event := args[0]
+		fmt.Printf("click at (%f, %f)\n", event.Get("clientX").Float(), event.Get("clientY").Float())
+		// Compute cell location
+		// send selection paint request
+	})
+
+	self.canvasElement.Call("addEventListener", "click", self.clickHandler)
 }
 
 func (self *Sheet) processQueue() {
@@ -344,7 +372,7 @@ func (self *Sheet) drawHeaders() {
 			self.maxX, self.maxY,
 			col2ColLabel(nCol), AlignCenter)
 	}
-	// row header outile
+	// row header outline
 	strokeFillRect(self.canvasContext, self.origX, self.origY, self.origX+DEFAULT_CELL_WIDTH, self.maxY, GRID_LINE_COLOR, HEADER_FILL_COLOR)
 	// draw row header separators
 	drawHorizLines(self.canvasContext, self.rowStartYCoords[0:numRowsInView], self.origX, self.origX+DEFAULT_CELL_WIDTH, GRID_LINE_COLOR)
