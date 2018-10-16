@@ -139,8 +139,6 @@ func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, 
 		stopWaitChan:    make(chan bool),
 	}
 
-	// Compute endColumn/endRow colStartXCoords/rowStartYCoords
-	ret.computeLayout()
 	setFont(ret.canvasContext, "14px serif")
 	ret.PaintWholeSheet()
 
@@ -270,6 +268,9 @@ func (self *Sheet) servePaintWholeSheetRequest() {
 	if self == nil {
 		return
 	}
+
+	// Recompute endColumn/endRow colStartXCoords/rowStartYCoords
+	self.computeLayout()
 
 	self.drawHeaders()
 
