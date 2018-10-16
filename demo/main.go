@@ -68,7 +68,7 @@ func main() {
 	closeButton.Call("addEventListener", "click", closeHandler)
 
 	model := &SheetModel{}
-	sheet := washeet.NewSheet(&ctx, 0.0, 0.0, width-1.0, height-1.0, model, model)
+	sheet := washeet.NewSheet(&canvasEl, &ctx, 0.0, 0.0, width-1.0, height-1.0, model, model)
 	sheet.Start()
 
 	<-quit

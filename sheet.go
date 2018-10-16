@@ -81,6 +81,7 @@ func (self *MarkData) IsSingleCell() bool {
 }
 
 type Sheet struct {
+	canvasElement *js.Value
 	canvasContext *js.Value
 	origX         float64
 	origY         float64
@@ -108,7 +109,7 @@ type Sheet struct {
 	stopWaitChan chan bool
 }
 
-func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, maxY float64,
+func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, maxX float64, maxY float64,
 	dSrc SheetDataProvider, dSink SheetModelUpdater) *Sheet {
 
 	if context == nil || startX+DEFAULT_CELL_WIDTH*10 >= maxX ||
@@ -117,6 +118,7 @@ func NewSheet(context *js.Value, startX float64, startY float64, maxX float64, m
 	}
 
 	ret := &Sheet{
+		canvasElement:   canvasElement,
 		canvasContext:   context,
 		origX:           startX,
 		origY:           startY,
