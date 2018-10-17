@@ -11,7 +11,7 @@ func drawVertLines(canvasContext *js.Value, xcoords []float64, ylow, yhigh float
 	path := path2dCtor.New()
 	canvasContext.Set("strokeStyle", color)
 	for _, xcoord := range xcoords {
-		addLine2Path(&path, xcoord, ylow, xcoord, yhigh)
+		addLine2Path(&path, xcoord+0.5, ylow, xcoord+0.5, yhigh)
 	}
 	canvasContext.Call("stroke", path)
 }
@@ -20,7 +20,7 @@ func drawHorizLines(canvasContext *js.Value, ycoords []float64, xlow, xhigh floa
 	path := path2dCtor.New()
 	canvasContext.Set("strokeStyle", color)
 	for _, ycoord := range ycoords {
-		addLine2Path(&path, xlow, ycoord, xhigh, ycoord)
+		addLine2Path(&path, xlow, ycoord+0.5, xhigh, ycoord+0.5)
 	}
 	canvasContext.Call("stroke", path)
 }
@@ -29,6 +29,20 @@ func drawLine(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, color s
 	path := path2dCtor.New()
 	canvasContext.Set("strokeStyle", color)
 	addLine2Path(&path, xlow, ylow, xhigh, yhigh)
+	canvasContext.Call("stroke", path)
+}
+
+func drawHorizLine(canvasContext *js.Value, xlow, xhigh, y float64, color string) {
+	path := path2dCtor.New()
+	canvasContext.Set("strokeStyle", color)
+	addLine2Path(&path, xlow, y+0.5, xhigh, y+0.5)
+	canvasContext.Call("stroke", path)
+}
+
+func drawVertLine(canvasContext *js.Value, ylow, yhigh, x float64, color string) {
+	path := path2dCtor.New()
+	canvasContext.Set("strokeStyle", color)
+	addLine2Path(&path, x+0.5, ylow, x+0.5, yhigh)
 	canvasContext.Call("stroke", path)
 }
 
