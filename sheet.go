@@ -402,13 +402,13 @@ func (self *Sheet) drawRange(c1, r1, c2, r2 int64) {
 	drawVertLines(self.canvasContext, self.colStartXCoords[startXIdx:endXIdx+1], ylow, yhigh, GRID_LINE_COLOR)
 
 	// draw last vertical line to show end of last column
-	drawLine(self.canvasContext, xhigh, ylow, xhigh, yhigh, GRID_LINE_COLOR)
+	drawVertLine(self.canvasContext, ylow, yhigh, xhigh, GRID_LINE_COLOR)
 
 	// draw N horizontal lines where N is number of rows in the range
 	drawHorizLines(self.canvasContext, self.rowStartYCoords[startYIdx:endYIdx+1], xlow, xhigh, GRID_LINE_COLOR)
 
 	// draw last horizontal line to show end of last row
-	drawLine(self.canvasContext, xlow, yhigh, xhigh, yhigh, GRID_LINE_COLOR)
+	drawHorizLine(self.canvasContext, xlow, xhigh, yhigh, GRID_LINE_COLOR)
 
 	self.drawCellRangeContents(c1, r1, c2, r2)
 
