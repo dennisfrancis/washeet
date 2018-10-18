@@ -27,12 +27,15 @@ func (self *SheetModel) GetDisplayString(column int64, row int64) string {
 
 func (self *SheetModel) GetColumnWidth(column int64) float64 {
 	if column == 5 {
-		return 100.0
+		return 230.0
 	}
 	return 0.0
 }
 
 func (self *SheetModel) GetRowHeight(row int64) float64 {
+	if row == 5 {
+		return 70.0
+	}
 	return 0.0
 }
 
