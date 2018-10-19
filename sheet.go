@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	"fmt"
+	//	"fmt"
 	"math"
 	"syscall/js"
 	"time"
@@ -108,7 +108,8 @@ type Sheet struct {
 	stopSignal   bool
 	stopWaitChan chan bool
 
-	clickHandler js.Callback
+	clickHandler     js.Callback
+	mousemoveHandler js.Callback
 }
 
 func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, maxX float64, maxY float64,
@@ -149,8 +150,9 @@ func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, 
 	setFont(ret.canvasContext, "14px serif")
 	setLineWidth(ret.canvasContext, 1.0)
 
-	ret.setUpClickHandler()
 	ret.PaintWholeSheet()
+	ret.setupClickHandler()
+	ret.setupMousemoveHandler()
 
 	return ret
 }
@@ -222,27 +224,160 @@ func (self *Sheet) Stop() {
 		return
 	}
 	self.canvasElement.Call("removeEventListener", "click", self.clickHandler)
+	self.canvasElement.Call("removeEventListener", "mousemove", self.mousemoveHandler)
+	self.canvasElement.Get("style").Set("cursor", "auto")
 	self.clickHandler.Release()
+	self.mousemoveHandler.Release()
 	self.stopSignal = true
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
-	noStrokeFillRect(self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
+	noStrokeFillRectNoAdjust(self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
 	<-self.stopWaitChan
 }
 
-func (self *Sheet) setUpClickHandler() {
+func (self *Sheet) setupClickHandler() {
 	if self == nil {
 		return
 	}
 
 	self.clickHandler = js.NewCallback(func(args []js.Value) {
 		event := args[0]
-		fmt.Printf("click at (%f, %f)\n", event.Get("clientX").Float(), event.Get("clientY").Float())
-		// Compute cell location
-		// send selection paint request
+		x := event.Get("offsetX").Float()
+		y := event.Get("offsetY").Float()
+		//fmt.Printf("click at (%f, %f)\n", x, y)
+
+		xi, yi := self.getCellIndex(x, y)
+		//fmt.Printf("cell index = (%d, %d)\n", xi, yi)
+		if xi < 0 || yi < 0 {
+			return
+		}
+		currsel := &(self.mark)
+		self.PaintCellRange(currsel.C1, currsel.R1, currsel.C2, currsel.R2)
+		self.PaintCellSelection(self.startColumn+xi, self.startRow+yi)
 	})
 
 	self.canvasElement.Call("addEventListener", "click", self.clickHandler)
+}
+
+func (self *Sheet) setupMousemoveHandler() {
+	if self == nil {
+		return
+	}
+
+	self.mousemoveHandler = js.NewCallback(func(args []js.Value) {
+		event := args[0]
+		x := event.Get("offsetX").Float()
+		y := event.Get("offsetY").Float()
+		bx, by, cellxidx, cellyidx := self.getNearestBorderXY(x, y)
+
+		// bx and by are the nearest cell's start coordinates
+		// so should not show resize mouse pointer for start borders of first column(col-resize) or first row(row-resize)
+		if math.Abs(x-bx) <= 1.0 && cellxidx >= 1 && cellyidx == -1 {
+			self.canvasElement.Get("style").Set("cursor", "col-resize")
+		} else if math.Abs(y-by) <= 1.0 && cellyidx >= 1 && cellxidx == -1 {
+			self.canvasElement.Get("style").Set("cursor", "row-resize")
+		} else if x >= self.origX && x <= self.maxX && y >= self.origY && y <= self.maxY {
+			self.canvasElement.Get("style").Set("cursor", "cell")
+		} else {
+			// for headers
+			self.canvasElement.Get("style").Set("cursor", "auto")
+		}
+	})
+
+	self.canvasElement.Call("addEventListener", "mousemove", self.mousemoveHandler)
+}
+
+func (self *Sheet) getNearestBorderXY(x, y float64) (bx, by float64, cellxidx, cellyidx int64) {
+
+	bx, by, cellxidx, cellyidx = 0.0, 0.0, -1, -1
+	xidx, yidx := self.getCellIndex(x, y)
+
+	if xidx >= 0 {
+		startx := self.colStartXCoords[xidx]
+		endx := self.colStartXCoords[xidx+1]
+
+		bx = startx
+		cellxidx = xidx
+
+		if (endx - x) < (x - startx) {
+			bx = endx
+			cellxidx = xidx + 1
+		}
+	}
+
+	if yidx >= 0 {
+		starty := self.rowStartYCoords[yidx]
+		endy := self.rowStartYCoords[yidx+1]
+
+		by = starty
+		cellyidx = yidx
+
+		if (endy - y) < (y - starty) {
+			by = endy
+			cellyidx = yidx + 1
+		}
+	}
+
+	return
+}
+
+// TODO: move the implementation to local.go with test cases
+func (self *Sheet) getCellIndex(x, y float64) (xidx, yidx int64) {
+	lowx := int64(0)
+	highx := (self.endColumn - self.startColumn)
+	xOutOfBounds := false
+
+	if self.colStartXCoords[lowx] > x || self.colStartXCoords[highx+1] < x {
+		xOutOfBounds = true
+	}
+
+	lowy := int64(0)
+	highy := (self.endRow - self.startRow)
+	yOutOfBounds := false
+
+	if self.rowStartYCoords[lowy] > y || self.rowStartYCoords[highy+1] < y {
+		yOutOfBounds = true
+	}
+
+	xidx, yidx = -1, -1
+
+	if xOutOfBounds && yOutOfBounds {
+		return
+	}
+
+	if !xOutOfBounds {
+		for lowx <= highx {
+			xidx = (lowx + highx) / 2
+			thisCellStartX := self.colStartXCoords[xidx]
+			nextCellStartX := self.colStartXCoords[xidx+1]
+			if thisCellStartX < x && x <= nextCellStartX {
+				break
+			}
+			if x <= thisCellStartX {
+				highx = xidx - 1
+			} else {
+				lowx = xidx + 1
+			}
+		}
+	}
+
+	if !yOutOfBounds {
+		for lowy <= highy {
+			yidx = (lowy + highy) / 2
+			thisCellStartY := self.rowStartYCoords[yidx]
+			nextCellStartY := self.rowStartYCoords[yidx+1]
+			if thisCellStartY < y && y <= nextCellStartY {
+				break
+			}
+			if y <= thisCellStartY {
+				highy = yidx - 1
+			} else {
+				lowy = yidx + 1
+			}
+		}
+	}
+
+	return
 }
 
 func (self *Sheet) processQueue() {
@@ -329,6 +464,8 @@ func (self *Sheet) servePaintSelectionRequest() {
 	if self.mark.C1 > self.endColumn || self.mark.C2 < self.startColumn || self.mark.R1 > self.endRow || self.mark.R2 < self.startRow {
 		return
 	}
+
+	//fmt.Printf("mark = %+v\n", self.mark)
 
 	c1, r1, c2, r2 := self.trimRangeToView(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
 	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := self.getIndicesAndRect(c1, r1, c2, r2)
@@ -513,4 +650,26 @@ func (self *Sheet) PaintCellRange(colStart int64, rowStart int64, colEnd int64, 
 		EndCol: colEnd,
 		EndRow: rowEnd,
 	})
+}
+
+func (self *Sheet) PaintCellSelection(col, row int64) {
+	if self == nil {
+		return
+	}
+
+	self.mark.C1, self.mark.C2 = col, col
+	self.mark.R1, self.mark.R2 = row, row
+
+	self.addPaintRequest(&SheetPaintRequest{Kind: SheetPaintSelection})
+}
+
+func (self *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd int64) {
+	if self == nil {
+		return
+	}
+
+	self.mark.C1, self.mark.C2 = colStart, colEnd
+	self.mark.R1, self.mark.R2 = rowStart, rowEnd
+
+	self.addPaintRequest(&SheetPaintRequest{Kind: SheetPaintSelection})
 }
