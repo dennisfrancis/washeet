@@ -4,6 +4,24 @@ import (
 	"math"
 )
 
+func (self *Sheet) servePaintRequest(request *SheetPaintRequest) {
+
+	if self == nil || request == nil {
+		return
+	}
+
+	switch request.Kind {
+	case SheetPaintWholeSheet:
+		self.servePaintWholeSheetRequest()
+	case SheetPaintCell:
+		self.servePaintCellRangeRequest(request.Col, request.Row, request.Col, request.Row)
+	case SheetPaintCellRange:
+		self.servePaintCellRangeRequest(request.Col, request.Row, request.EndCol, request.EndRow)
+	case SheetPaintSelection:
+		self.servePaintSelectionRequest()
+	}
+}
+
 func (self *Sheet) servePaintWholeSheetRequest() {
 
 	if self == nil {
