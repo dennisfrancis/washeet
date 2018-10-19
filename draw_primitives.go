@@ -59,6 +59,13 @@ func noStrokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64,
 	canvasContext.Call("fill", path)
 }
 
+func noStrokeFillRectNoAdjust(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, fillColor string) {
+	path := path2dCtor.New()
+	canvasContext.Set("fillStyle", fillColor)
+	addRect2PathNoAdjust(&path, xlow, ylow, xhigh, yhigh)
+	canvasContext.Call("fill", path)
+}
+
 func strokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor, fillColor string) {
 	path := path2dCtor.New()
 	canvasContext.Set("strokeStyle", strokeColor)
@@ -76,7 +83,12 @@ func strokeNoFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64,
 }
 
 // Adds a rect to the path, no actual drawing takes place
+// Adjustment to xlow, ylow to match the adjustments we do with line drawings
 func addRect2Path(path *js.Value, xlow, ylow, xhigh, yhigh float64) {
+	path.Call("rect", xlow+0.5, ylow+0.5, xhigh-xlow, yhigh-ylow)
+}
+
+func addRect2PathNoAdjust(path *js.Value, xlow, ylow, xhigh, yhigh float64) {
 	path.Call("rect", xlow, ylow, xhigh-xlow, yhigh-ylow)
 }
 
