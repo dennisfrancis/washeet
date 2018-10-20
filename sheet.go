@@ -66,15 +66,15 @@ func (self *Sheet) Stop() {
 	if self == nil || self.stopSignal {
 		return
 	}
-	self.canvasElement.Call("removeEventListener", "click", self.clickHandler)
-	self.canvasElement.Call("removeEventListener", "mousemove", self.mousemoveHandler)
-	self.canvasElement.Get("style").Set("cursor", "auto")
-	self.clickHandler.Release()
-	self.mousemoveHandler.Release()
+
+	self.teardownClickHandler()
+	self.teardownMousemoveHandler()
+
 	self.stopSignal = true
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
 	noStrokeFillRectNoAdjust(self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
+	// Wait till we get signal from paint-queue when it it has finished
 	<-self.stopWaitChan
 }
 

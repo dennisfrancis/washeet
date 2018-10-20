@@ -56,3 +56,16 @@ func (self *Sheet) setupMousemoveHandler() {
 
 	self.canvasElement.Call("addEventListener", "mousemove", self.mousemoveHandler)
 }
+
+func (self *Sheet) teardownClickHandler() {
+
+	self.canvasElement.Call("removeEventListener", "click", self.clickHandler)
+	self.clickHandler.Release()
+}
+
+func (self *Sheet) teardownMousemoveHandler() {
+
+	self.canvasElement.Call("removeEventListener", "mousemove", self.mousemoveHandler)
+	self.canvasElement.Get("style").Set("cursor", "auto")
+	self.mousemoveHandler.Release()
+}
