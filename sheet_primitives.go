@@ -38,61 +38,17 @@ func (self *Sheet) getNearestBorderXY(x, y float64) (bx, by float64, cellxidx, c
 	return
 }
 
-// TODO: move the implementation to local.go with test cases
 func (self *Sheet) getCellIndex(x, y float64) (xidx, yidx int64) {
-	lowx := int64(0)
+
+	// last visible column's index
 	highx := (self.endColumn - self.startColumn)
-	xOutOfBounds := false
-
-	if self.colStartXCoords[lowx] > x || self.colStartXCoords[highx+1] < x {
-		xOutOfBounds = true
-	}
-
-	lowy := int64(0)
+	// last visible row's index
 	highy := (self.endRow - self.startRow)
-	yOutOfBounds := false
 
-	if self.rowStartYCoords[lowy] > y || self.rowStartYCoords[highy+1] < y {
-		yOutOfBounds = true
-	}
-
-	xidx, yidx = -1, -1
-
-	if xOutOfBounds && yOutOfBounds {
-		return
-	}
-
-	if !xOutOfBounds {
-		for lowx <= highx {
-			xidx = (lowx + highx) / 2
-			thisCellStartX := self.colStartXCoords[xidx]
-			nextCellStartX := self.colStartXCoords[xidx+1]
-			if thisCellStartX < x && x <= nextCellStartX {
-				break
-			}
-			if x <= thisCellStartX {
-				highx = xidx - 1
-			} else {
-				lowx = xidx + 1
-			}
-		}
-	}
-
-	if !yOutOfBounds {
-		for lowy <= highy {
-			yidx = (lowy + highy) / 2
-			thisCellStartY := self.rowStartYCoords[yidx]
-			nextCellStartY := self.rowStartYCoords[yidx+1]
-			if thisCellStartY < y && y <= nextCellStartY {
-				break
-			}
-			if y <= thisCellStartY {
-				highy = yidx - 1
-			} else {
-				lowy = yidx + 1
-			}
-		}
-	}
+	// self.colStartXCoords should have at least highx+2 elements
+	// as it stores start coordinate of cell after the last visible.
+	xidx = getIntervalIndex(x, self.colStartXCoords[:highx+2])
+	yidx = getIntervalIndex(y, self.rowStartYCoords[:highy+2])
 
 	return
 }
