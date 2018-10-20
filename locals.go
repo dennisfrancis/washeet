@@ -46,3 +46,44 @@ func col2ColLabel(nCol int64) string {
 func row2RowLabel(nRow int64) string {
 	return fmt.Sprintf("%d", nRow+1)
 }
+
+// Assumes intervalArray is sorted of course.
+func getIntervalIndex(val float64, intervalArray []float64) (index int64) {
+
+	// Result for out of bound cases
+	index = -1
+
+	// There must be at least one interval, so there must be at least 2 elements !
+	if len(intervalArray) < 2 {
+		return
+	}
+
+	// Note : intervalArray has len(intervalArray) - 1 intervals.
+	lowIntervalIdx, highIntervalIdx := int64(0), int64(len(intervalArray)-2)
+
+	// intervalArray[lowIntervalIdx] is the first interval's start point
+	// intervalArray[highIntervalIdx+1] is the last interval's end point
+	if val <= intervalArray[lowIntervalIdx] || intervalArray[highIntervalIdx+1] < val {
+		return
+	}
+
+	// Do binary search to find the right interval
+	// TODO: do interpolation search instead !
+	for lowIntervalIdx <= highIntervalIdx {
+		index = (lowIntervalIdx + highIntervalIdx) / 2
+		thisIntervalStart := intervalArray[index]
+		thisIntervalEnd := intervalArray[index+1]
+		if thisIntervalStart < val && val <= thisIntervalEnd {
+			// Found the interval where val lies
+			return
+		}
+		if val <= thisIntervalStart {
+			highIntervalIdx = index - 1
+		} else {
+			lowIntervalIdx = index + 1
+		}
+	}
+
+	index = -1
+	return
+}
