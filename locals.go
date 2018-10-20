@@ -2,6 +2,7 @@ package washeet
 
 import (
 	"fmt"
+	"math"
 )
 
 var (
@@ -48,6 +49,7 @@ func row2RowLabel(nRow int64) string {
 }
 
 // Assumes intervalArray is sorted of course.
+// Assumes all intervals are non-empty ( intervalArray[a] != intervalArray[b] )
 func getIntervalIndex(val float64, intervalArray []float64) (index int64) {
 
 	// Result for out of bound cases
@@ -68,9 +70,33 @@ func getIntervalIndex(val float64, intervalArray []float64) (index int64) {
 	}
 
 	// Do binary search to find the right interval
-	// TODO: do interpolation search instead !
-	for lowIntervalIdx <= highIntervalIdx {
-		index = (lowIntervalIdx + highIntervalIdx) / 2
+	itercount := 0
+	for lowIntervalIdx < highIntervalIdx {
+		if itercount >= 10 {
+			// fallback to binary search
+			index = (lowIntervalIdx + highIntervalIdx) / 2
+		} else {
+			// specialized version for our interval search where an interval is of the form (start, end]
+			index = lowIntervalIdx - 1 + int64(math.Ceil(
+				(val-intervalArray[lowIntervalIdx])*float64(highIntervalIdx-lowIntervalIdx)/
+					(intervalArray[highIntervalIdx]-intervalArray[lowIntervalIdx])))
+
+			// **Invariants**
+			// 1. "val > intervalArray[lowIntervalIdx]"
+			// so index >= lowIntervalIdx
+			//
+			// 2. "val <= intervalArray[highIntervalIdx+1]"
+			// But index need not be less than highIntervalIdx+1 at this point.
+
+			if index > highIntervalIdx {
+				// This happens only if val > intervalArray[highIntervalIdx]
+				// This combined with invariant-2, correct final interval index is highIntervalIdx
+				index = highIntervalIdx
+				return
+			}
+
+			// Now index >= lowIntervalIdx and index <= highIntervalIdx
+		}
 		thisIntervalStart := intervalArray[index]
 		thisIntervalEnd := intervalArray[index+1]
 		if thisIntervalStart < val && val <= thisIntervalEnd {
@@ -79,11 +105,20 @@ func getIntervalIndex(val float64, intervalArray []float64) (index int64) {
 		}
 		if val <= thisIntervalStart {
 			highIntervalIdx = index - 1
-		} else {
+		} else { // val > thisIntervalEnd
 			lowIntervalIdx = index + 1
+		}
+		itercount++
+
+		if lowIntervalIdx == highIntervalIdx {
+			// From the 2 invariants, the correct solution is obvious.
+			// No need to iterate further.
+			index = highIntervalIdx
+			return
 		}
 	}
 
+	// Can end up here if one of the assumptions are violated.
 	index = -1
 	return
 }
