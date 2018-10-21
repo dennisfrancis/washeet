@@ -35,7 +35,15 @@ type MarkData struct {
 	R2 int64
 }
 
-type MouseState byte
+type CellCoords struct {
+	Col int64
+	Row int64
+}
+
+type MouseState struct {
+	buttonsState      byte
+	lastMouseDownCell CellCoords
+}
 
 type Sheet struct {
 	canvasElement *js.Value
