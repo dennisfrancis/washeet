@@ -35,6 +35,8 @@ type MarkData struct {
 	R2 int64
 }
 
+type MouseState byte
+
 type Sheet struct {
 	canvasElement *js.Value
 	canvasContext *js.Value
@@ -63,6 +65,8 @@ type Sheet struct {
 	stopSignal   bool
 	stopWaitChan chan bool
 
-	clickHandler     js.Callback
+	mouseState       MouseState
+	mousedownHandler js.Callback
+	mouseupHandler   js.Callback
 	mousemoveHandler js.Callback
 }

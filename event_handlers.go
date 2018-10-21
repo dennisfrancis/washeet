@@ -1,6 +1,7 @@
 package washeet
 
 import (
+	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -10,7 +11,8 @@ func (self *Sheet) setupMouseHandlers() {
 		return
 	}
 
-	self.setupClickHandler()
+	self.setupMousedownHandler()
+	self.setupMouseupHandler()
 	self.setupMousemoveHandler()
 }
 
@@ -20,16 +22,19 @@ func (self *Sheet) teardownMouseHandlers() {
 	}
 
 	self.teardownMousemoveHandler()
-	self.teardownClickHandler()
+	self.teardownMouseupHandler()
+	self.teardownMousedownHandler()
 }
 
-func (self *Sheet) setupClickHandler() {
+func (self *Sheet) setupMousedownHandler() {
 	if self == nil {
 		return
 	}
 
-	self.clickHandler = js.NewCallback(func(args []js.Value) {
+	self.mousedownHandler = js.NewCallback(func(args []js.Value) {
+		// TODO: Check for which mouse button is down.
 		event := args[0]
+		self.mouseState.setLeftDown()
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
 		//fmt.Printf("click at (%f, %f)\n", x, y)
@@ -44,7 +49,23 @@ func (self *Sheet) setupClickHandler() {
 		self.PaintCellSelection(self.startColumn+xi, self.startRow+yi)
 	})
 
-	self.canvasElement.Call("addEventListener", "click", self.clickHandler)
+	self.canvasElement.Call("addEventListener", "mousedown", self.mousedownHandler)
+}
+
+func (self *Sheet) setupMouseupHandler() {
+	if self == nil {
+		return
+	}
+
+	self.mouseupHandler = js.NewCallback(func(args []js.Value) {
+		event := args[0]
+		self.mouseState.setLeftUp()
+		x := event.Get("offsetX").Float()
+		y := event.Get("offsetY").Float()
+		fmt.Printf("mouseup at (%f, %f)\n", x, y)
+	})
+
+	self.canvasElement.Call("addEventListener", "mouseup", self.mouseupHandler)
 }
 
 func (self *Sheet) setupMousemoveHandler() {
@@ -75,10 +96,16 @@ func (self *Sheet) setupMousemoveHandler() {
 	self.canvasElement.Call("addEventListener", "mousemove", self.mousemoveHandler)
 }
 
-func (self *Sheet) teardownClickHandler() {
+func (self *Sheet) teardownMousedownHandler() {
 
-	self.canvasElement.Call("removeEventListener", "click", self.clickHandler)
-	self.clickHandler.Release()
+	self.canvasElement.Call("removeEventListener", "mousedown", self.mousedownHandler)
+	self.mousedownHandler.Release()
+}
+
+func (self *Sheet) teardownMouseupHandler() {
+
+	self.canvasElement.Call("removeEventListener", "mouseup", self.mouseupHandler)
+	self.mouseupHandler.Release()
 }
 
 func (self *Sheet) teardownMousemoveHandler() {

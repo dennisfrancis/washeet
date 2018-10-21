@@ -38,6 +38,7 @@ func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, 
 		mark:            MarkData{0, 0, 6, 6},
 		stopSignal:      false,
 		stopWaitChan:    make(chan bool),
+		mouseState:      defaultMouseState(),
 	}
 
 	// TODO : Move these somewhere else
