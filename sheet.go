@@ -45,8 +45,7 @@ func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, 
 	setLineWidth(ret.canvasContext, 1.0)
 
 	ret.PaintWholeSheet()
-	ret.setupClickHandler()
-	ret.setupMousemoveHandler()
+	ret.setupMouseHandlers()
 
 	return ret
 }
@@ -67,8 +66,7 @@ func (self *Sheet) Stop() {
 		return
 	}
 
-	self.teardownClickHandler()
-	self.teardownMousemoveHandler()
+	self.teardownMouseHandlers()
 
 	self.stopSignal = true
 	// clear the widget area.

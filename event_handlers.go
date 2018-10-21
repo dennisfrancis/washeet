@@ -5,6 +5,24 @@ import (
 	"syscall/js"
 )
 
+func (self *Sheet) setupMouseHandlers() {
+	if self == nil {
+		return
+	}
+
+	self.setupClickHandler()
+	self.setupMousemoveHandler()
+}
+
+func (self *Sheet) teardownMouseHandlers() {
+	if self == nil {
+		return
+	}
+
+	self.teardownMousemoveHandler()
+	self.teardownClickHandler()
+}
+
 func (self *Sheet) setupClickHandler() {
 	if self == nil {
 		return
