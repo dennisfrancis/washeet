@@ -4,10 +4,9 @@ import (
 	"math"
 )
 
-func (self *Sheet) getNearestBorderXY(x, y float64) (bx, by float64, cellxidx, cellyidx int64) {
+func (self *Sheet) getNearestBorderXY(x, y float64, xidx, yidx int64) (bx, by float64, cellxidx, cellyidx int64) {
 
 	bx, by, cellxidx, cellyidx = 0.0, 0.0, -1, -1
-	xidx, yidx := self.getCellIndex(x, y)
 
 	if xidx >= 0 {
 		startx := self.colStartXCoords[xidx]

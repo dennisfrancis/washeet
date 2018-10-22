@@ -32,9 +32,10 @@ func (self *Sheet) setupMousedownHandler() {
 	}
 
 	self.mousedownHandler = js.NewCallback(func(args []js.Value) {
-		// TODO: Check for which mouse button is down.
 		event := args[0]
-		self.mouseState.setLeftDown()
+		if event.Get("button").Int() == 0 {
+			self.mouseState.setLeftDown()
+		}
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
 		//fmt.Printf("click at (%f, %f)\n", x, y)
@@ -45,8 +46,10 @@ func (self *Sheet) setupMousedownHandler() {
 			return
 		}
 		currsel := &(self.mark)
+		col, row := self.startColumn+xi, self.startRow+yi
+		self.mouseState.setLastMouseDownCell(col, row)
 		self.PaintCellRange(currsel.C1, currsel.R1, currsel.C2, currsel.R2)
-		self.PaintCellSelection(self.startColumn+xi, self.startRow+yi)
+		self.PaintCellSelection(col, row)
 	})
 
 	self.canvasElement.Call("addEventListener", "mousedown", self.mousedownHandler)
@@ -77,16 +80,42 @@ func (self *Sheet) setupMousemoveHandler() {
 		event := args[0]
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
-		bx, by, cellxidx, cellyidx := self.getNearestBorderXY(x, y)
+		xidx, yidx := self.getCellIndex(x, y)
+		bx, by, nearestxidx, nearestyidx := self.getNearestBorderXY(x, y, xidx, yidx)
 
 		// bx and by are the nearest cell's start coordinates
 		// so should not show resize mouse pointer for start borders of first column(col-resize) or first row(row-resize)
-		if math.Abs(x-bx) <= 1.0 && cellxidx >= 1 && cellyidx == -1 {
+		if math.Abs(x-bx) <= 1.0 && nearestxidx >= 1 && nearestyidx == -1 {
 			self.canvasElement.Get("style").Set("cursor", "col-resize")
-		} else if math.Abs(y-by) <= 1.0 && cellyidx >= 1 && cellxidx == -1 {
+		} else if math.Abs(y-by) <= 1.0 && nearestyidx >= 1 && nearestxidx == -1 {
 			self.canvasElement.Get("style").Set("cursor", "row-resize")
 		} else if x >= self.origX && x <= self.maxX && y >= self.origY && y <= self.maxY {
 			self.canvasElement.Get("style").Set("cursor", "cell")
+
+			// selection of a range while in a drag operation
+			if self.mouseState.isLeftDown() {
+				currsel := &(self.mark)
+				refcell := &(self.mouseState.lastMouseDownCell)
+				col, row := self.startColumn+xidx, self.startRow+yidx
+
+				if col == refcell.Col && row == refcell.Row {
+					if col == currsel.C1 && col == currsel.R1 && currsel.IsSingleCell() {
+						// no change in mark data
+						return
+					}
+				}
+				if col != refcell.Col && row != refcell.Row {
+					if (col == currsel.C1 && row == currsel.R1) || (col == currsel.C2 && row == currsel.R2) {
+						// no change in mark data
+						return
+					}
+				}
+
+				self.PaintCellRange(currsel.C1, currsel.R1, currsel.C2, currsel.R2)
+				c1, c2 := getInOrder(refcell.Col, col)
+				r1, r2 := getInOrder(refcell.Row, row)
+				self.PaintCellRangeSelection(c1, r1, c2, r2)
+			}
 		} else {
 			// for headers
 			self.canvasElement.Get("style").Set("cursor", "auto")
