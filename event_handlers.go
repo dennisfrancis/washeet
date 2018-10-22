@@ -38,13 +38,12 @@ func (self *Sheet) setupMousedownHandler() {
 		//fmt.Printf("click at (%f, %f)\n", x, y)
 		buttonCode := event.Get("button").Int()
 		if buttonCode == 0 {
-			self.mouseState.setLeftDown()
-
 			xi, yi := self.getCellIndex(x, y)
 			//fmt.Printf("cell index = (%d, %d)\n", xi, yi)
 			if xi < 0 || yi < 0 {
 				return
 			}
+			self.mouseState.setLeftDown()
 			currsel := &(self.mark)
 			col, row := self.startColumn+xi, self.startRow+yi
 			self.mouseState.setLastMouseDownCell(col, row)
