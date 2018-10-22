@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	"fmt"
+	//	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -33,23 +33,26 @@ func (self *Sheet) setupMousedownHandler() {
 
 	self.mousedownHandler = js.NewCallback(func(args []js.Value) {
 		event := args[0]
-		if event.Get("button").Int() == 0 {
-			self.mouseState.setLeftDown()
-		}
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
 		//fmt.Printf("click at (%f, %f)\n", x, y)
+		buttonCode := event.Get("button").Int()
+		if buttonCode == 0 {
+			self.mouseState.setLeftDown()
 
-		xi, yi := self.getCellIndex(x, y)
-		//fmt.Printf("cell index = (%d, %d)\n", xi, yi)
-		if xi < 0 || yi < 0 {
-			return
+			xi, yi := self.getCellIndex(x, y)
+			//fmt.Printf("cell index = (%d, %d)\n", xi, yi)
+			if xi < 0 || yi < 0 {
+				return
+			}
+			currsel := &(self.mark)
+			col, row := self.startColumn+xi, self.startRow+yi
+			self.mouseState.setLastMouseDownCell(col, row)
+			self.PaintCellRange(currsel.C1, currsel.R1, currsel.C2, currsel.R2)
+			self.PaintCellSelection(col, row)
+		} else if buttonCode == 2 {
+			self.mouseState.setRightDown()
 		}
-		currsel := &(self.mark)
-		col, row := self.startColumn+xi, self.startRow+yi
-		self.mouseState.setLastMouseDownCell(col, row)
-		self.PaintCellRange(currsel.C1, currsel.R1, currsel.C2, currsel.R2)
-		self.PaintCellSelection(col, row)
 	})
 
 	self.canvasElement.Call("addEventListener", "mousedown", self.mousedownHandler)
@@ -62,10 +65,17 @@ func (self *Sheet) setupMouseupHandler() {
 
 	self.mouseupHandler = js.NewCallback(func(args []js.Value) {
 		event := args[0]
-		self.mouseState.setLeftUp()
-		x := event.Get("offsetX").Float()
-		y := event.Get("offsetY").Float()
-		fmt.Printf("mouseup at (%f, %f)\n", x, y)
+		buttonCode := event.Get("button").Int()
+		if buttonCode == 0 {
+			self.mouseState.setLeftUp()
+		} else if buttonCode == 2 {
+			self.mouseState.setRightUp()
+		}
+		/*
+			x := event.Get("offsetX").Float()
+			y := event.Get("offsetY").Float()
+			fmt.Printf("mouseup at (%f, %f)\n", x, y)
+		*/
 	})
 
 	self.canvasElement.Call("addEventListener", "mouseup", self.mouseupHandler)
