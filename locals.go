@@ -122,3 +122,11 @@ func getIntervalIndex(val float64, intervalArray []float64) (index int64) {
 	index = -1
 	return
 }
+
+func getInOrder(val1, val2 int64) (int64, int64) {
+	if val1 <= val2 {
+		return val1, val2
+	}
+
+	return val2, val1
+}
