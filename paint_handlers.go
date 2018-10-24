@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	"fmt"
+	//	"fmt"
 	"math"
 )
 
@@ -28,8 +28,6 @@ func (self *Sheet) servePaintWholeSheetRequest() {
 	if self == nil {
 		return
 	}
-
-	fmt.Println("Whole sheet paint")
 
 	// Recompute endColumn/endRow colStartXCoords/rowStartYCoords
 	self.computeLayout()
@@ -74,7 +72,7 @@ func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd
 		return
 	}
 
-	fmt.Printf("mark = %+v\n", self.mark)
+	//fmt.Printf("mark = %+v\n", self.mark)
 
 	c1, r1, c2, r2 := self.trimRangeToView(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
 	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := self.getIndicesAndRect(c1, r1, c2, r2)

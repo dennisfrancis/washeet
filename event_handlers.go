@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	"fmt"
+	//	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -111,7 +111,6 @@ func (self *Sheet) setupMousemoveHandler() {
 				if refCurrCell.Col == col && refCurrCell.Row == row {
 					return
 				}
-				fmt.Printf("col = %d, row = %d\n", col, row)
 
 				refCurrCell.Col, refCurrCell.Row = col, row
 				c1, c2 := getInOrder(refStartCell.Col, col)
