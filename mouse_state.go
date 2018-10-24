@@ -24,10 +24,14 @@ func (self *MouseState) setRightUp() {
 	self.buttonsState &= 0xFD
 }
 
-func (self *MouseState) setLastMouseDownCell(col, row int64) {
-	self.lastMouseDownCell.Col, self.lastMouseDownCell.Row = col, row
+func (self *MouseState) setRefStartCell(col, row int64) {
+	self.refStartCell.Col, self.refStartCell.Row = col, row
+}
+
+func (self *MouseState) setRefCurrCell(col, row int64) {
+	self.refCurrCell.Col, self.refCurrCell.Row = col, row
 }
 
 func defaultMouseState() MouseState {
-	return MouseState{buttonsState: 0x00, lastMouseDownCell: CellCoords{0, 0}}
+	return MouseState{buttonsState: 0x00, refStartCell: CellCoords{0, 0}, refCurrCell: CellCoords{0, 0}}
 }

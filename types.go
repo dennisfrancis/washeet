@@ -41,8 +41,9 @@ type CellCoords struct {
 }
 
 type MouseState struct {
-	buttonsState      byte
-	lastMouseDownCell CellCoords
+	buttonsState byte
+	refStartCell CellCoords
+	refCurrCell  CellCoords
 }
 
 type Sheet struct {
