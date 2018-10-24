@@ -1,6 +1,7 @@
 package washeet
 
 import (
+	"sync"
 	"syscall/js"
 )
 
@@ -73,6 +74,7 @@ type Sheet struct {
 	mark         MarkData
 	stopSignal   bool
 	stopWaitChan chan bool
+	ehMutex      sync.Mutex
 
 	mouseState       MouseState
 	mousedownHandler js.Callback
