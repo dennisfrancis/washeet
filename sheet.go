@@ -124,10 +124,13 @@ func (self *Sheet) PaintCellSelection(col, row int64) {
 		return
 	}
 
-	self.mark.C1, self.mark.C2 = col, col
-	self.mark.R1, self.mark.R2 = row, row
-
-	self.addPaintRequest(&SheetPaintRequest{Kind: SheetPaintSelection})
+	self.addPaintRequest(&SheetPaintRequest{
+		Kind:   SheetPaintSelection,
+		Col:    col,
+		Row:    row,
+		EndCol: col,
+		EndRow: row,
+	})
 }
 
 func (self *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd int64) {
@@ -135,8 +138,11 @@ func (self *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd in
 		return
 	}
 
-	self.mark.C1, self.mark.C2 = colStart, colEnd
-	self.mark.R1, self.mark.R2 = rowStart, rowEnd
-
-	self.addPaintRequest(&SheetPaintRequest{Kind: SheetPaintSelection})
+	self.addPaintRequest(&SheetPaintRequest{
+		Kind:   SheetPaintSelection,
+		Col:    colStart,
+		Row:    rowStart,
+		EndCol: colEnd,
+		EndRow: rowEnd,
+	})
 }

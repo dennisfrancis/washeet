@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	//	"fmt"
+	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -44,10 +44,9 @@ func (self *Sheet) setupMousedownHandler() {
 				return
 			}
 			self.mouseState.setLeftDown()
-			currsel := &(self.mark)
 			col, row := self.startColumn+xi, self.startRow+yi
-			self.mouseState.setLastMouseDownCell(col, row)
-			self.PaintCellRange(currsel.C1, currsel.R1, currsel.C2, currsel.R2)
+			self.mouseState.setRefStartCell(col, row)
+			self.mouseState.setRefCurrCell(col, row)
 			self.PaintCellSelection(col, row)
 		} else if buttonCode == 2 {
 			self.mouseState.setRightDown()
@@ -103,26 +102,20 @@ func (self *Sheet) setupMousemoveHandler() {
 
 			// selection of a range while in a drag operation
 			if self.mouseState.isLeftDown() {
-				currsel := &(self.mark)
-				refcell := &(self.mouseState.lastMouseDownCell)
+				self.ehMutex.Lock()
+				defer self.ehMutex.Unlock()
+				refStartCell := &(self.mouseState.refStartCell)
+				refCurrCell := &(self.mouseState.refCurrCell)
 				col, row := self.startColumn+xidx, self.startRow+yidx
 
-				if col == refcell.Col && row == refcell.Row {
-					if col == currsel.C1 && col == currsel.R1 && currsel.IsSingleCell() {
-						// no change in mark data
-						return
-					}
+				if refCurrCell.Col == col && refCurrCell.Row == row {
+					return
 				}
-				if col != refcell.Col && row != refcell.Row {
-					if (col == currsel.C1 && row == currsel.R1) || (col == currsel.C2 && row == currsel.R2) {
-						// no change in mark data
-						return
-					}
-				}
+				fmt.Printf("col = %d, row = %d\n", col, row)
 
-				self.PaintCellRange(currsel.C1, currsel.R1, currsel.C2, currsel.R2)
-				c1, c2 := getInOrder(refcell.Col, col)
-				r1, r2 := getInOrder(refcell.Row, row)
+				refCurrCell.Col, refCurrCell.Row = col, row
+				c1, c2 := getInOrder(refStartCell.Col, col)
+				r1, r2 := getInOrder(refStartCell.Row, row)
 				self.PaintCellRangeSelection(c1, r1, c2, r2)
 			}
 		} else {

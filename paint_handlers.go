@@ -1,6 +1,7 @@
 package washeet
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -18,7 +19,7 @@ func (self *Sheet) servePaintRequest(request *SheetPaintRequest) {
 	case SheetPaintCellRange:
 		self.servePaintCellRangeRequest(request.Col, request.Row, request.EndCol, request.EndRow)
 	case SheetPaintSelection:
-		self.servePaintSelectionRequest()
+		self.servePaintSelectionRequest(request.Col, request.Row, request.EndCol, request.EndRow)
 	}
 }
 
@@ -28,6 +29,8 @@ func (self *Sheet) servePaintWholeSheetRequest() {
 		return
 	}
 
+	fmt.Println("Whole sheet paint")
+
 	// Recompute endColumn/endRow colStartXCoords/rowStartYCoords
 	self.computeLayout()
 
@@ -35,7 +38,7 @@ func (self *Sheet) servePaintWholeSheetRequest() {
 
 	self.servePaintCellRangeRequest(self.startColumn, self.startRow, self.endColumn, self.endRow)
 
-	self.servePaintSelectionRequest()
+	self.servePaintSelectionRequest(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
 }
 
 func (self *Sheet) servePaintCellRangeRequest(colStart int64, rowStart int64, colEnd int64, rowEnd int64) {
@@ -49,19 +52,29 @@ func (self *Sheet) servePaintCellRangeRequest(colStart int64, rowStart int64, co
 	self.drawRange(c1, r1, c2, r2)
 }
 
-// Warning : assumes self.mark is well-ordered
-func (self *Sheet) servePaintSelectionRequest() {
+// Warning : assumes range supplied is well-ordered
+func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd int64) {
 
 	if self == nil {
 		return
 	}
+
+	// Undo the current selection
+	if !(self.mark.C1 > self.endColumn || self.mark.C2 < self.startColumn || self.mark.R1 > self.endRow || self.mark.R2 < self.startRow) {
+		// if current selection is in view at least partially
+		c1, r1, c2, r2 := self.trimRangeToView(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
+		self.servePaintCellRangeRequest(c1, r1, c2, r2)
+	}
+
+	self.mark.C1, self.mark.C2 = colStart, colEnd
+	self.mark.R1, self.mark.R2 = rowStart, rowEnd
 
 	// check if mark is out of view
 	if self.mark.C1 > self.endColumn || self.mark.C2 < self.startColumn || self.mark.R1 > self.endRow || self.mark.R2 < self.startRow {
 		return
 	}
 
-	//fmt.Printf("mark = %+v\n", self.mark)
+	fmt.Printf("mark = %+v\n", self.mark)
 
 	c1, r1, c2, r2 := self.trimRangeToView(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
 	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := self.getIndicesAndRect(c1, r1, c2, r2)
