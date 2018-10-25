@@ -80,4 +80,6 @@ type Sheet struct {
 	mousedownHandler js.Callback
 	mouseupHandler   js.Callback
 	mousemoveHandler js.Callback
+
+	keypressHandler js.Callback
 }
