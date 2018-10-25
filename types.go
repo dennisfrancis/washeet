@@ -41,8 +41,9 @@ type CellCoords struct {
 	Row int64
 }
 
-type MouseState struct {
-	buttonsState byte
+type MouseState byte
+
+type SelectionState struct {
 	refStartCell CellCoords
 	refCurrCell  CellCoords
 }
@@ -76,7 +77,9 @@ type Sheet struct {
 	stopWaitChan chan bool
 	ehMutex      sync.Mutex
 
-	mouseState       MouseState
+	mouseState     MouseState
+	selectionState SelectionState
+
 	mousedownHandler js.Callback
 	mouseupHandler   js.Callback
 	mousemoveHandler js.Callback

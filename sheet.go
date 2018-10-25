@@ -39,6 +39,7 @@ func NewSheet(canvasElement, context *js.Value, startX float64, startY float64, 
 		stopSignal:      false,
 		stopWaitChan:    make(chan bool),
 		mouseState:      defaultMouseState(),
+		selectionState:  defaultSelectionState(),
 	}
 
 	// TODO : Move these somewhere else

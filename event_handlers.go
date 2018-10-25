@@ -45,8 +45,8 @@ func (self *Sheet) setupMousedownHandler() {
 			}
 			self.mouseState.setLeftDown()
 			col, row := self.startColumn+xi, self.startRow+yi
-			self.mouseState.setRefStartCell(col, row)
-			self.mouseState.setRefCurrCell(col, row)
+			self.selectionState.setRefStartCell(col, row)
+			self.selectionState.setRefCurrCell(col, row)
 			self.PaintCellSelection(col, row)
 		} else if buttonCode == 2 {
 			self.mouseState.setRightDown()
@@ -104,8 +104,8 @@ func (self *Sheet) setupMousemoveHandler() {
 			if self.mouseState.isLeftDown() {
 				self.ehMutex.Lock()
 				defer self.ehMutex.Unlock()
-				refStartCell := &(self.mouseState.refStartCell)
-				refCurrCell := &(self.mouseState.refCurrCell)
+				refStartCell := self.selectionState.getRefStartCell()
+				refCurrCell := self.selectionState.getRefCurrCell()
 				col, row := self.startColumn+xidx, self.startRow+yidx
 
 				if refCurrCell.Col == col && refCurrCell.Row == row {
