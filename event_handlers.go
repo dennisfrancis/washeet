@@ -144,3 +144,33 @@ func (self *Sheet) teardownMousemoveHandler() {
 	self.canvasElement.Get("style").Set("cursor", "auto")
 	self.mousemoveHandler.Release()
 }
+
+func (self *Sheet) setupKeyboardHandlers() {
+	if self == nil {
+		return
+	}
+
+	self.setupKeypressHandler()
+}
+
+func (self *Sheet) teardownKeyboardHandlers() {
+	if self == nil {
+		return
+	}
+
+	self.teardownKeypressHandler()
+}
+
+func (self *Sheet) setupKeypressHandler() {
+	if self == nil {
+		return
+	}
+
+}
+
+func (self *Sheet) teardownKeypressHandler() {
+	if self == nil {
+		return
+	}
+
+}
