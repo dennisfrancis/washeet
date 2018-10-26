@@ -2,7 +2,9 @@ package washeet
 
 const (
 	MAXROWCOUNT              int64   = 1048576
+	MAXROW                   int64   = MAXROWCOUNT - 1
 	MAXCOLCOUNT              int64   = 16384
+	MAXCOL                   int64   = MAXCOLCOUNT - 1
 	DEFAULT_CELL_WIDTH       float64 = 120.0
 	DEFAULT_CELL_HEIGHT      float64 = 30.0
 	SHEET_PAINT_QUEUE_LENGTH int     = 10
