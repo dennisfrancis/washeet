@@ -49,6 +49,7 @@ type SelectionState struct {
 }
 
 type Sheet struct {
+	window        *js.Value
 	canvasElement *js.Value
 	canvasContext *js.Value
 	origX         float64
