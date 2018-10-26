@@ -150,7 +150,7 @@ func (self *Sheet) setupKeyboardHandlers() {
 		return
 	}
 
-	self.setupKeypressHandler()
+	self.setupKeydownHandler()
 }
 
 func (self *Sheet) teardownKeyboardHandlers() {
@@ -158,19 +158,61 @@ func (self *Sheet) teardownKeyboardHandlers() {
 		return
 	}
 
-	self.teardownKeypressHandler()
+	self.teardownKeydownHandler()
 }
 
-func (self *Sheet) setupKeypressHandler() {
+func (self *Sheet) setupKeydownHandler() {
 	if self == nil {
 		return
 	}
 
+	// NewEventCallback is used so that we can prevent window scrolling. event.preventDefault calls does not work
+	self.keydownHandler = js.NewEventCallback(js.PreventDefault|js.StopPropagation|js.StopImmediatePropagation, func(event js.Value) {
+		self.ehMutex.Lock()
+		defer self.ehMutex.Unlock()
+		keycode := event.Get("keyCode").Int()
+		col, row := self.mark.C1, self.mark.R1
+		paintFlag := true
+		switch keycode {
+		case 37: // Left
+			if col == 0 {
+				paintFlag = false
+			} else {
+				col--
+			}
+		case 39: // Right
+			if col == MAXCOL {
+				paintFlag = false
+			} else {
+				col++
+			}
+		case 38: // Up
+			if row == 0 {
+				paintFlag = false
+			} else {
+				row--
+			}
+		case 40: // Down
+			if row == MAXROW {
+				paintFlag = false
+			} else {
+				row++
+			}
+
+		}
+		if paintFlag {
+			self.PaintCellRangeSelection(col, row, col, row)
+		}
+	})
+
+	self.canvasElement.Call("addEventListener", "keydown", self.keydownHandler)
 }
 
-func (self *Sheet) teardownKeypressHandler() {
+func (self *Sheet) teardownKeydownHandler() {
 	if self == nil {
 		return
 	}
 
+	self.canvasElement.Call("removeEventListener", "keydown", self.keydownHandler)
+	self.keydownHandler.Release()
 }

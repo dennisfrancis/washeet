@@ -85,5 +85,5 @@ type Sheet struct {
 	mouseupHandler   js.Callback
 	mousemoveHandler js.Callback
 
-	keypressHandler js.Callback
+	keydownHandler js.Callback
 }

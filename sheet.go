@@ -49,6 +49,7 @@ func NewSheet(window, canvasElement, context *js.Value, startX float64, startY f
 
 	ret.PaintWholeSheet()
 	ret.setupMouseHandlers()
+	ret.setupKeyboardHandlers()
 
 	return ret
 }
@@ -69,6 +70,7 @@ func (self *Sheet) Stop() {
 		return
 	}
 
+	self.teardownKeyboardHandlers()
 	self.teardownMouseHandlers()
 
 	self.stopSignal = true
