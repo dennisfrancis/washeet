@@ -28,7 +28,7 @@ func (self *Sheet) processQueue() {
 				self.stopWaitChan <- true
 				return
 			}
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		}
 	}
 }
