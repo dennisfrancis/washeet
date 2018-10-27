@@ -172,9 +172,11 @@ func (self *Sheet) setupKeydownHandler() {
 		defer self.ehMutex.Unlock()
 		keycode := event.Get("keyCode").Int()
 		shiftKeyDown := event.Get("shiftKey").Bool()
-		col, row := self.mark.C1, self.mark.R1
+		refStartCell := self.selectionState.getRefStartCell()
+		refCurrCell := self.selectionState.getRefCurrCell()
+		col, row := refStartCell.Col, refStartCell.Row
 		if shiftKeyDown {
-			col, row = self.mark.C2, self.mark.R2
+			col, row = refCurrCell.Col, refCurrCell.Row
 		}
 		paintFlag := true
 		switch keycode {
@@ -206,10 +208,14 @@ func (self *Sheet) setupKeydownHandler() {
 		}
 		if paintFlag {
 			if shiftKeyDown {
-				c1, c2 := getInOrder(col, self.mark.C1)
-				r1, r2 := getInOrder(row, self.mark.R1)
+				self.selectionState.setRefCurrCell(col, row)
+				c1, c2 := getInOrder(col, refStartCell.Col)
+				r1, r2 := getInOrder(row, refStartCell.Row)
 				self.PaintCellRangeSelection(c1, r1, c2, r2)
 			} else {
+				// Change both startCell and currCell references
+				self.selectionState.setRefStartCell(col, row)
+				self.selectionState.setRefCurrCell(col, row)
 				self.PaintCellSelection(col, row)
 			}
 		}
