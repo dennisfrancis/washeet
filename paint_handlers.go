@@ -81,10 +81,22 @@ func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd
 		strokeFillRect(self.canvasContext, xlow, ylow, xhigh, yhigh, SELECTION_STROKE_COLOR, SELECTION_FILL_COLOR)
 	}
 
-	xFirstCellEnd := math.Min(self.colStartXCoords[ci1+1], self.maxX)
-	yFirstCellEnd := math.Min(self.rowStartYCoords[ri1+1], self.maxY)
-	strokeNoFillRect(self.canvasContext, xlow, ylow, xFirstCellEnd, yFirstCellEnd, CURSOR_STROKE_COLOR)
-	strokeNoFillRect(self.canvasContext, xlow+2, ylow+2, xFirstCellEnd-2, yFirstCellEnd-2, CURSOR_STROKE_COLOR)
+	// Paint borders for the refStartCell if it is in view
+	// refStartCell need not be the first cell in the range
+	refStartCell := self.selectionState.getRefStartCell()
+	if refStartCell.Col <= c2 && refStartCell.Col >= c1 && refStartCell.Row <= r2 && refStartCell.Row >= r1 {
+
+		startCellColIdx, startCellRowIdx := ci1, ri1
+		if refStartCell.Col == c2 && refStartCell.Row == r2 {
+			startCellColIdx, startCellRowIdx = ci2, ri2
+		}
+		xStartCellBeg := math.Max(xlow, self.colStartXCoords[startCellColIdx])
+		yStartCellBeg := math.Max(ylow, self.rowStartYCoords[startCellRowIdx])
+		xStartCellEnd := math.Min(self.colStartXCoords[startCellColIdx+1], self.maxX)
+		yStartCellEnd := math.Min(self.rowStartYCoords[startCellRowIdx+1], self.maxY)
+		strokeNoFillRect(self.canvasContext, xStartCellBeg, yStartCellBeg, xStartCellEnd, yStartCellEnd, CURSOR_STROKE_COLOR)
+		strokeNoFillRect(self.canvasContext, xStartCellBeg+2, yStartCellBeg+2, xStartCellEnd-2, yStartCellEnd-2, CURSOR_STROKE_COLOR)
+	}
 
 	if c2 == self.mark.C2 && r2 == self.mark.R2 {
 		xLastCellEnd := self.colStartXCoords[ci2+1]
