@@ -87,8 +87,11 @@ func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd
 	if refStartCell.Col <= c2 && refStartCell.Col >= c1 && refStartCell.Row <= r2 && refStartCell.Row >= r1 {
 
 		startCellColIdx, startCellRowIdx := ci1, ri1
-		if refStartCell.Col == c2 && refStartCell.Row == r2 {
-			startCellColIdx, startCellRowIdx = ci2, ri2
+		if refStartCell.Col == c2 {
+			startCellColIdx = ci2
+		}
+		if refStartCell.Row == r2 {
+			startCellRowIdx = ri2
 		}
 		xStartCellBeg := math.Max(xlow, self.colStartXCoords[startCellColIdx])
 		yStartCellBeg := math.Max(ylow, self.rowStartYCoords[startCellRowIdx])
