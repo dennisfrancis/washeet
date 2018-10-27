@@ -171,7 +171,11 @@ func (self *Sheet) setupKeydownHandler() {
 		self.ehMutex.Lock()
 		defer self.ehMutex.Unlock()
 		keycode := event.Get("keyCode").Int()
+		shiftKeyDown := event.Get("shiftKey").Bool()
 		col, row := self.mark.C1, self.mark.R1
+		if shiftKeyDown {
+			col, row = self.mark.C2, self.mark.R2
+		}
 		paintFlag := true
 		switch keycode {
 		case 37: // Left
@@ -201,7 +205,13 @@ func (self *Sheet) setupKeydownHandler() {
 
 		}
 		if paintFlag {
-			self.PaintCellRangeSelection(col, row, col, row)
+			if shiftKeyDown {
+				c1, c2 := getInOrder(col, self.mark.C1)
+				r1, r2 := getInOrder(row, self.mark.R1)
+				self.PaintCellRangeSelection(c1, r1, c2, r2)
+			} else {
+				self.PaintCellSelection(col, row)
+			}
 		}
 	})
 
