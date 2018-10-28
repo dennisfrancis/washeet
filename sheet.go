@@ -6,22 +6,23 @@ import (
 	"syscall/js"
 )
 
-func NewSheet(window, canvasElement, context *js.Value, startX float64, startY float64, maxX float64, maxY float64,
+func NewSheet(canvasElement *js.Value, startX float64, startY float64, maxX float64, maxY float64,
 	dSrc SheetDataProvider, dSink SheetModelUpdater) *Sheet {
 
 	// HACK : Adjust for line width of 1.0
 	maxX -= 1.0
 	maxY -= 1.0
 
-	if context == nil || startX+DEFAULT_CELL_WIDTH*10 >= maxX ||
+	if canvasElement == nil || startX+DEFAULT_CELL_WIDTH*10 >= maxX ||
 		startY+DEFAULT_CELL_HEIGHT*10 >= maxY {
 		return nil
 	}
 
 	ret := &Sheet{
-		window:          window,
+		document:        js.Global().Get("document"),
+		window:          js.Global().Get("window"),
 		canvasElement:   canvasElement,
-		canvasContext:   context,
+		canvasContext:   canvasElement.Call("getContext", "2d"),
 		origX:           startX,
 		origY:           startY,
 		maxX:            maxX,
@@ -44,8 +45,8 @@ func NewSheet(window, canvasElement, context *js.Value, startX float64, startY f
 	}
 
 	// TODO : Move these somewhere else
-	setFont(ret.canvasContext, "14px serif")
-	setLineWidth(ret.canvasContext, 1.0)
+	setFont(&ret.canvasContext, "14px serif")
+	setLineWidth(&ret.canvasContext, 1.0)
 
 	ret.PaintWholeSheet()
 	ret.setupMouseHandlers()
@@ -76,7 +77,7 @@ func (self *Sheet) Stop() {
 	self.stopSignal = true
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
-	noStrokeFillRectNoAdjust(self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
+	noStrokeFillRectNoAdjust(&self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
 	// Wait till we get signal from paint-queue when it it has finished
 	<-self.stopWaitChan
 }

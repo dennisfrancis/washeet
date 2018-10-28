@@ -49,9 +49,10 @@ type SelectionState struct {
 }
 
 type Sheet struct {
-	window        *js.Value
+	document      js.Value
+	window        js.Value
 	canvasElement *js.Value
-	canvasContext *js.Value
+	canvasContext js.Value
 	origX         float64
 	origY         float64
 	maxX          float64

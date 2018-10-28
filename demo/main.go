@@ -56,7 +56,7 @@ func main() {
 
 	// Init Canvas stuff
 	doc := js.Global().Get("document")
-	window := js.Global().Get("window")
+	//window := js.Global().Get("window")
 	canvasEl := doc.Call("getElementById", "washeet")
 	width = doc.Get("body").Get("clientWidth").Float()
 	height = doc.Get("body").Get("clientHeight").Float()
@@ -72,7 +72,7 @@ func main() {
 	closeButton.Call("addEventListener", "click", closeHandler)
 
 	model := &SheetModel{}
-	sheet := washeet.NewSheet(&window, &canvasEl, &ctx, 0.0, 0.0, width-1.0, height-1.0, model, model)
+	sheet := washeet.NewSheet(&canvasEl, 0.0, 0.0, width-1.0, height-1.0, model, model)
 	sheet.Start()
 
 	<-quit
