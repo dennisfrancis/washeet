@@ -22,7 +22,7 @@ func (self *SheetModel) GetDisplayString(column int64, row int64) string {
 		return "Hello washeet !"
 	}
 
-	return ""
+	return fmt.Sprintf("Cell(%d, %d)", column, row)
 }
 
 func (self *SheetModel) GetColumnWidth(column int64) float64 {
