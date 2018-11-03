@@ -37,7 +37,7 @@ func NewSheet(canvasElement *js.Value, startX float64, startY float64, maxX floa
 		paintQueue:      make(chan *SheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
 		colStartXCoords: make([]float64, 0, 1+int(math.Ceil((maxX-startX+1)/DEFAULT_CELL_WIDTH))),
 		rowStartYCoords: make([]float64, 0, 1+int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
-		mark:            MarkData{0, 0, 6, 6},
+		mark:            MarkData{0, 0, 0, 0},
 		stopSignal:      false,
 		stopWaitChan:    make(chan bool),
 		mouseState:      defaultMouseState(),
