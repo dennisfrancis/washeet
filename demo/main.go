@@ -56,10 +56,8 @@ func main() {
 
 	// Init Canvas stuff
 	doc := js.Global().Get("document")
-	//window := js.Global().Get("window")
 	canvasEl := doc.Call("getElementById", "washeet")
-	width = doc.Get("body").Get("clientWidth").Float()
-	height = doc.Get("body").Get("clientHeight").Float()
+	width, height = 1500.0, 905.0
 	canvasEl.Set("width", width)
 	canvasEl.Set("height", height)
 	ctx = canvasEl.Call("getContext", "2d")
