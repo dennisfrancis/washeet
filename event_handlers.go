@@ -172,52 +172,9 @@ func (self *Sheet) setupKeydownHandler() {
 		defer self.ehMutex.Unlock()
 		keycode := event.Get("keyCode").Int()
 		shiftKeyDown := event.Get("shiftKey").Bool()
-		refStartCell := self.selectionState.getRefStartCell()
-		refCurrCell := self.selectionState.getRefCurrCell()
-		col, row := refStartCell.Col, refStartCell.Row
-		if shiftKeyDown {
-			col, row = refCurrCell.Col, refCurrCell.Row
-		}
-		paintFlag := true
 		switch keycode {
-		case 37: // Left
-			if col == 0 {
-				paintFlag = false
-			} else {
-				col--
-			}
-		case 39: // Right
-			if col == MAXCOL {
-				paintFlag = false
-			} else {
-				col++
-			}
-		case 38: // Up
-			if row == 0 {
-				paintFlag = false
-			} else {
-				row--
-			}
-		case 40: // Down
-			if row == MAXROW {
-				paintFlag = false
-			} else {
-				row++
-			}
-
-		}
-		if paintFlag {
-			if shiftKeyDown {
-				self.selectionState.setRefCurrCell(col, row)
-				c1, c2 := getInOrder(col, refStartCell.Col)
-				r1, r2 := getInOrder(row, refStartCell.Row)
-				self.PaintCellRangeSelection(c1, r1, c2, r2)
-			} else {
-				// Change both startCell and currCell references
-				self.selectionState.setRefStartCell(col, row)
-				self.selectionState.setRefCurrCell(col, row)
-				self.PaintCellSelection(col, row)
-			}
+		case 37, 38, 39, 40:
+			self.arrowKeyHandler(keycode, shiftKeyDown)
 		}
 	})
 
@@ -231,4 +188,58 @@ func (self *Sheet) teardownKeydownHandler() {
 
 	self.canvasElement.Call("removeEventListener", "keydown", self.keydownHandler)
 	self.keydownHandler.Release()
+}
+
+func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
+	if self == nil {
+		return
+	}
+
+	refStartCell := self.selectionState.getRefStartCell()
+	refCurrCell := self.selectionState.getRefCurrCell()
+	col, row := refStartCell.Col, refStartCell.Row
+	if shiftKeyDown {
+		col, row = refCurrCell.Col, refCurrCell.Row
+	}
+	paintFlag := true
+	switch keycode {
+	case 37: // Left
+		if col == 0 {
+			paintFlag = false
+		} else {
+			col--
+		}
+	case 39: // Right
+		if col == MAXCOL {
+			paintFlag = false
+		} else {
+			col++
+		}
+	case 38: // Up
+		if row == 0 {
+			paintFlag = false
+		} else {
+			row--
+		}
+	case 40: // Down
+		if row == MAXROW {
+			paintFlag = false
+		} else {
+			row++
+		}
+
+	}
+	if paintFlag {
+		if shiftKeyDown {
+			self.selectionState.setRefCurrCell(col, row)
+			c1, c2 := getInOrder(col, refStartCell.Col)
+			r1, r2 := getInOrder(row, refStartCell.Row)
+			self.PaintCellRangeSelection(c1, r1, c2, r2)
+		} else {
+			// Change both startCell and currCell references
+			self.selectionState.setRefStartCell(col, row)
+			self.selectionState.setRefCurrCell(col, row)
+			self.PaintCellSelection(col, row)
+		}
+	}
 }
