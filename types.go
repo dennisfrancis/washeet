@@ -49,14 +49,15 @@ type SelectionState struct {
 }
 
 type Sheet struct {
-	document      js.Value
-	window        js.Value
-	canvasElement *js.Value
-	canvasContext js.Value
-	origX         float64
-	origY         float64
-	maxX          float64
-	maxY          float64
+	document          js.Value
+	window            js.Value
+	canvasElement     *js.Value
+	canvasContext     js.Value
+	clipboardTextArea js.Value
+	origX             float64
+	origY             float64
+	maxX              float64
+	maxY              float64
 
 	dataSource SheetDataProvider
 	dataSink   SheetModelUpdater

@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	"fmt"
+	//	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -253,8 +253,4 @@ func (self *Sheet) keyboardCommandHandler(keycode int) {
 		// Ctrl+C
 		self.copySelectionToClipboard()
 	}
-}
-
-func (self *Sheet) copySelectionToClipboard() {
-	fmt.Println("copySelectionToClipboard()")
 }
