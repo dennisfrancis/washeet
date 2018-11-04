@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	//	"fmt"
+	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -172,9 +172,12 @@ func (self *Sheet) setupKeydownHandler() {
 		defer self.ehMutex.Unlock()
 		keycode := event.Get("keyCode").Int()
 		shiftKeyDown := event.Get("shiftKey").Bool()
-		switch keycode {
-		case 37, 38, 39, 40:
+		ctrlKeyDown := event.Get("ctrlKey").Bool()
+		if keycode >= 37 && keycode <= 40 {
 			self.arrowKeyHandler(keycode, shiftKeyDown)
+		} else if ctrlKeyDown {
+			// some command like Ctrl+C, Ctrl+V
+			self.keyboardCommandHandler(keycode)
 		}
 	})
 
@@ -242,4 +245,16 @@ func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 			self.PaintCellSelection(col, row)
 		}
 	}
+}
+
+func (self *Sheet) keyboardCommandHandler(keycode int) {
+	// Ctrl key is down too, thats why this is now a command.
+	if keycode == int('c') || keycode == int('C') {
+		// Ctrl+C
+		self.copySelectionToClipboard()
+	}
+}
+
+func (self *Sheet) copySelectionToClipboard() {
+	fmt.Println("copySelectionToClipboard()")
 }
