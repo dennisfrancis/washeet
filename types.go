@@ -21,6 +21,11 @@ type SheetDataProvider interface {
 	GetDisplayString(column int64, row int64) string
 	GetColumnWidth(column int64) float64
 	GetRowHeight(row int64) float64
+	// Trims given range to biggest range that does not have
+	// leading/trailing empty columns/rows.
+	// Returns false if given range is completely empty,
+	// else returns true.
+	TrimToNonEmptyRange(c1, r1, c2, r2 *int64) bool
 }
 
 type SheetModelUpdater interface {

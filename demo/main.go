@@ -39,6 +39,10 @@ func (self *SheetModel) GetRowHeight(row int64) float64 {
 	return 0.0
 }
 
+func (self *SheetModel) TrimToNonEmptyRange(c1, r1, c2, r2 *int64) bool {
+	return true
+}
+
 // Satisfy SheetModelUpdater interface.
 
 func (self *SheetModel) SetColumnWidth(column int64, width float64) {
