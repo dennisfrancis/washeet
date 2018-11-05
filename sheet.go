@@ -6,7 +6,7 @@ import (
 	"syscall/js"
 )
 
-func NewSheet(canvasElement *js.Value, startX float64, startY float64, maxX float64, maxY float64,
+func NewSheet(canvasElement, container *js.Value, startX float64, startY float64, maxX float64, maxY float64,
 	dSrc SheetDataProvider, dSink SheetModelUpdater) *Sheet {
 
 	// HACK : Adjust for line width of 1.0
@@ -21,6 +21,7 @@ func NewSheet(canvasElement *js.Value, startX float64, startY float64, maxX floa
 	ret := &Sheet{
 		document:        js.Global().Get("document"),
 		window:          js.Global().Get("window"),
+		container:       container,
 		canvasElement:   canvasElement,
 		canvasContext:   canvasElement.Call("getContext", "2d"),
 		origX:           startX,

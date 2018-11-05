@@ -56,6 +56,7 @@ type SelectionState struct {
 type Sheet struct {
 	document          js.Value
 	window            js.Value
+	container         *js.Value
 	canvasElement     *js.Value
 	canvasContext     js.Value
 	clipboardTextArea js.Value

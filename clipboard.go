@@ -7,8 +7,8 @@ import (
 
 func (self *Sheet) setupClipboardTextArea() {
 	self.clipboardTextArea = self.document.Call("createElement", "textarea")
-	self.clipboardTextArea.Call("setAttribute", "style", "z-index:-1;position:fixed;")
-	self.document.Get("body").Call("appendChild", self.clipboardTextArea)
+	self.clipboardTextArea.Call("setAttribute", "style", "position:absolute;z-index:-2;")
+	self.container.Call("appendChild", self.clipboardTextArea)
 }
 
 func (self *Sheet) copySelectionToClipboard() {
