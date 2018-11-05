@@ -98,7 +98,7 @@ func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd
 		xStartCellEnd := math.Min(self.colStartXCoords[startCellColIdx+1], self.maxX)
 		yStartCellEnd := math.Min(self.rowStartYCoords[startCellRowIdx+1], self.maxY)
 		strokeNoFillRect(&self.canvasContext, xStartCellBeg, yStartCellBeg, xStartCellEnd, yStartCellEnd, CURSOR_STROKE_COLOR)
-		strokeNoFillRect(&self.canvasContext, xStartCellBeg+2, yStartCellBeg+2, xStartCellEnd-2, yStartCellEnd-2, CURSOR_STROKE_COLOR)
+		strokeNoFillRect(&self.canvasContext, xStartCellBeg+1, yStartCellBeg+1, xStartCellEnd-1, yStartCellEnd-1, CURSOR_STROKE_COLOR)
 	}
 
 	if c2 == self.mark.C2 && r2 == self.mark.R2 {
