@@ -1,9 +1,5 @@
 package washeet
 
-import (
-	"math"
-)
-
 func (self *Sheet) computeLayout() {
 
 	if self == nil {
@@ -12,45 +8,45 @@ func (self *Sheet) computeLayout() {
 
 	// Start of actual top left cell to be drawn after accounting
 	// for the row/col-headers
-	cellStartX, cellStartY := self.origX+DEFAULT_CELL_WIDTH, self.origY+DEFAULT_CELL_HEIGHT
-	currCol, currRow := self.startColumn, self.startRow
-	colIdx, rowIdx := 0, 0
+	minX, minY := self.origX+DEFAULT_CELL_WIDTH, self.origY+DEFAULT_CELL_HEIGHT
 
-	for {
-
-		// We need the startX of the "out-of-screen" column too
-		if colIdx >= len(self.colStartXCoords) {
-			self.colStartXCoords = append(self.colStartXCoords, cellStartX)
-		} else {
-			self.colStartXCoords[colIdx] = cellStartX
-		}
-
-		if cellStartX > self.maxX {
-			break
-		}
-
-		cellStartX += math.Max(self.dataSource.GetColumnWidth(currCol), DEFAULT_CELL_WIDTH)
-		currCol++
-		colIdx++
+	if self.layoutFromStartCol {
+		self.endColumn, self.colStartXCoords = computeCellsCoordsRefStart(
+			minX,
+			self.maxX,
+			self.startColumn,
+			self.dataSource.GetColumnWidth,
+			DEFAULT_CELL_WIDTH,
+			self.colStartXCoords,
+		)
+	} else {
+		self.startColumn, self.endColumn, self.colStartXCoords = computeCellsCoordsRefEnd(
+			minX,
+			self.maxX,
+			self.endColumn,
+			self.dataSource.GetColumnWidth,
+			DEFAULT_CELL_WIDTH,
+			self.colStartXCoords,
+		)
 	}
 
-	for {
-
-		// We need the startY of the "out-of-screen" row too
-		if rowIdx >= len(self.rowStartYCoords) {
-			self.rowStartYCoords = append(self.rowStartYCoords, cellStartY)
-		} else {
-			self.rowStartYCoords[rowIdx] = cellStartY
-		}
-
-		if cellStartY > self.maxY {
-			break
-		}
-
-		cellStartY += math.Max(self.dataSource.GetRowHeight(currRow), DEFAULT_CELL_HEIGHT)
-		currRow++
-		rowIdx++
+	if self.layoutFromStartRow {
+		self.endRow, self.rowStartYCoords = computeCellsCoordsRefStart(
+			minY,
+			self.maxY,
+			self.startRow,
+			self.dataSource.GetRowHeight,
+			DEFAULT_CELL_HEIGHT,
+			self.rowStartYCoords,
+		)
+	} else {
+		self.startRow, self.endRow, self.rowStartYCoords = computeCellsCoordsRefEnd(
+			minY,
+			self.maxY,
+			self.endRow,
+			self.dataSource.GetRowHeight,
+			DEFAULT_CELL_HEIGHT,
+			self.rowStartYCoords,
+		)
 	}
-
-	self.endColumn, self.endRow = currCol-1, currRow-1
 }

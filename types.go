@@ -94,4 +94,9 @@ type Sheet struct {
 	mousemoveHandler js.Callback
 
 	keydownHandler js.Callback
+
+	layoutFromStartCol bool
+	layoutFromStartRow bool
 }
+
+type cellMeasureGetter func(int64) float64
