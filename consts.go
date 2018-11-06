@@ -19,10 +19,10 @@ const (
 )
 
 const (
-	SheetPaintWholeSheet SheetPaintType = iota
-	SheetPaintCell
-	SheetPaintCellRange
-	SheetPaintSelection
+	sheetPaintWholeSheet sheetPaintType = iota
+	sheetPaintCell
+	sheetPaintCellRange
+	sheetPaintSelection
 )
 
 const (

@@ -12,13 +12,13 @@ func (self *Sheet) servePaintRequest(request *sheetPaintRequest) {
 	}
 
 	switch request.kind {
-	case SheetPaintWholeSheet:
+	case sheetPaintWholeSheet:
 		self.servePaintWholeSheetRequest(request.col, request.row, request.changeSheetStartCol, request.changeSheetStartRow)
-	case SheetPaintCell:
+	case sheetPaintCell:
 		self.servePaintCellRangeRequest(request.col, request.row, request.col, request.row)
-	case SheetPaintCellRange:
+	case sheetPaintCellRange:
 		self.servePaintCellRangeRequest(request.col, request.row, request.endCol, request.endRow)
-	case SheetPaintSelection:
+	case sheetPaintSelection:
 		self.servePaintSelectionRequest(request.col, request.row, request.endCol, request.endRow)
 	}
 }

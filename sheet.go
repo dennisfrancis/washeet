@@ -90,7 +90,7 @@ func (self *Sheet) Stop() {
 // changeSheetStartCol/changeSheetStartRow is also used to set self.layoutFromStartCol/self.layoutFromStartRow
 func (self *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSheetStartRow bool) {
 	req := &sheetPaintRequest{
-		kind:                SheetPaintWholeSheet,
+		kind:                sheetPaintWholeSheet,
 		col:                 col,
 		row:                 row,
 		changeSheetStartCol: changeSheetStartCol,
@@ -113,7 +113,7 @@ func (self *Sheet) PaintCell(col int64, row int64) {
 	}
 
 	self.addPaintRequest(&sheetPaintRequest{
-		kind:   SheetPaintCell,
+		kind:   sheetPaintCell,
 		col:    col,
 		row:    row,
 		endCol: col,
@@ -128,7 +128,7 @@ func (self *Sheet) PaintCellRange(colStart int64, rowStart int64, colEnd int64, 
 	}
 
 	self.addPaintRequest(&sheetPaintRequest{
-		kind:   SheetPaintCellRange,
+		kind:   sheetPaintCellRange,
 		col:    colStart,
 		row:    rowStart,
 		endCol: colEnd,
@@ -142,7 +142,7 @@ func (self *Sheet) PaintCellSelection(col, row int64) {
 	}
 
 	self.addPaintRequest(&sheetPaintRequest{
-		kind:   SheetPaintSelection,
+		kind:   sheetPaintSelection,
 		col:    col,
 		row:    row,
 		endCol: col,
@@ -156,7 +156,7 @@ func (self *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd in
 	}
 
 	self.addPaintRequest(&sheetPaintRequest{
-		kind:   SheetPaintSelection,
+		kind:   sheetPaintSelection,
 		col:    colStart,
 		row:    rowStart,
 		endCol: colEnd,

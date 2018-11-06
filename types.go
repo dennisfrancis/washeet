@@ -5,10 +5,10 @@ import (
 	"syscall/js"
 )
 
-type SheetPaintType byte
+type sheetPaintType byte
 
 type sheetPaintRequest struct {
-	kind   SheetPaintType
+	kind   sheetPaintType
 	col    int64
 	row    int64
 	endCol int64
