@@ -13,6 +13,9 @@ type SheetPaintRequest struct {
 	Row    int64
 	EndCol int64
 	EndRow int64
+	// For whole sheet paint requests
+	changeSheetStartCol bool
+	changeSheetStartRow bool
 }
 
 type TextAlignType byte

@@ -13,7 +13,7 @@ func (self *Sheet) servePaintRequest(request *SheetPaintRequest) {
 
 	switch request.Kind {
 	case SheetPaintWholeSheet:
-		self.servePaintWholeSheetRequest()
+		self.servePaintWholeSheetRequest(request.Col, request.Row, request.changeSheetStartCol, request.changeSheetStartRow)
 	case SheetPaintCell:
 		self.servePaintCellRangeRequest(request.Col, request.Row, request.Col, request.Row)
 	case SheetPaintCellRange:
@@ -23,13 +23,32 @@ func (self *Sheet) servePaintRequest(request *SheetPaintRequest) {
 	}
 }
 
-func (self *Sheet) servePaintWholeSheetRequest() {
+func (self *Sheet) servePaintWholeSheetRequest(col, row int64, changeSheetStartCol, changeSheetStartRow bool) {
 
 	if self == nil {
 		return
 	}
 
-	// Recompute endColumn/endRow colStartXCoords/rowStartYCoords
+	// Recompute startColumn/startRow/endColumn/endRow colStartXCoords/rowStartYCoords
+	self.layoutFromStartCol = changeSheetStartCol
+	self.layoutFromStartRow = changeSheetStartRow
+
+	if col >= 0 {
+		if changeSheetStartCol {
+			self.startColumn = col
+		} else {
+			self.endColumn = col
+		}
+	}
+
+	if row >= 0 {
+		if changeSheetStartRow {
+			self.startRow = row
+		} else {
+			self.endRow = row
+		}
+	}
+
 	self.computeLayout()
 
 	self.drawHeaders()

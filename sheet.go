@@ -52,7 +52,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	setLineWidth(&ret.canvasContext, 1.0)
 
 	ret.setupClipboardTextArea()
-	ret.PaintWholeSheet()
+	ret.PaintWholeSheet(ret.startColumn, ret.startRow, ret.layoutFromStartCol, ret.layoutFromStartRow)
 	ret.setupMouseHandlers()
 	ret.setupKeyboardHandlers()
 
@@ -86,8 +86,16 @@ func (self *Sheet) Stop() {
 	<-self.stopWaitChan
 }
 
-func (self *Sheet) PaintWholeSheet() {
-	req := &SheetPaintRequest{Kind: SheetPaintWholeSheet}
+// if col/row = -1 no changes are made before whole-redraw
+// changeSheetStartCol/changeSheetStartRow is also used to set self.layoutFromStartCol/self.layoutFromStartRow
+func (self *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSheetStartRow bool) {
+	req := &SheetPaintRequest{
+		Kind:                SheetPaintWholeSheet,
+		Col:                 col,
+		Row:                 row,
+		changeSheetStartCol: changeSheetStartCol,
+		changeSheetStartRow: changeSheetStartRow,
+	}
 	self.addPaintRequest(req)
 }
 

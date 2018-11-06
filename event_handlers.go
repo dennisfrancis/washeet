@@ -204,6 +204,7 @@ func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 	if shiftKeyDown {
 		col, row = refCurrCell.Col, refCurrCell.Row
 	}
+	// flag for selection paint
 	paintFlag := true
 	switch keycode {
 	case 37: // Left
@@ -232,6 +233,33 @@ func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 		}
 
 	}
+
+	shouldPaintWhole := false
+	changeCol, changeRow := int64(-1), int64(-1)
+	changeSheetStartCol, changeSheetStartRow := true, true
+
+	if col < self.startColumn {
+		changeCol = col
+		shouldPaintWhole = true
+	} else if col >= self.endColumn {
+		changeCol = col
+		changeSheetStartCol = false
+		shouldPaintWhole = true
+	}
+
+	if row < self.startRow {
+		changeRow = row
+		shouldPaintWhole = true
+	} else if row >= self.endRow {
+		changeRow = row
+		changeSheetStartRow = false
+		shouldPaintWhole = true
+	}
+
+	if shouldPaintWhole {
+		self.PaintWholeSheet(changeCol, changeRow, changeSheetStartCol, changeSheetStartRow)
+	}
+
 	if paintFlag {
 		if shiftKeyDown {
 			self.selectionState.setRefCurrCell(col, row)
