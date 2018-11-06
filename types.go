@@ -7,12 +7,12 @@ import (
 
 type SheetPaintType byte
 
-type SheetPaintRequest struct {
-	Kind   SheetPaintType
-	Col    int64
-	Row    int64
-	EndCol int64
-	EndRow int64
+type sheetPaintRequest struct {
+	kind   SheetPaintType
+	col    int64
+	row    int64
+	endCol int64
+	endRow int64
 	// For whole sheet paint requests
 	changeSheetStartCol bool
 	changeSheetStartRow bool
@@ -79,7 +79,7 @@ type Sheet struct {
 	endColumn int64
 	endRow    int64
 
-	paintQueue chan *SheetPaintRequest
+	paintQueue chan *sheetPaintRequest
 
 	colStartXCoords []float64
 	rowStartYCoords []float64

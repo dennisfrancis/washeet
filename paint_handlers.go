@@ -5,21 +5,21 @@ import (
 	"math"
 )
 
-func (self *Sheet) servePaintRequest(request *SheetPaintRequest) {
+func (self *Sheet) servePaintRequest(request *sheetPaintRequest) {
 
 	if self == nil || request == nil {
 		return
 	}
 
-	switch request.Kind {
+	switch request.kind {
 	case SheetPaintWholeSheet:
-		self.servePaintWholeSheetRequest(request.Col, request.Row, request.changeSheetStartCol, request.changeSheetStartRow)
+		self.servePaintWholeSheetRequest(request.col, request.row, request.changeSheetStartCol, request.changeSheetStartRow)
 	case SheetPaintCell:
-		self.servePaintCellRangeRequest(request.Col, request.Row, request.Col, request.Row)
+		self.servePaintCellRangeRequest(request.col, request.row, request.col, request.row)
 	case SheetPaintCellRange:
-		self.servePaintCellRangeRequest(request.Col, request.Row, request.EndCol, request.EndRow)
+		self.servePaintCellRangeRequest(request.col, request.row, request.endCol, request.endRow)
 	case SheetPaintSelection:
-		self.servePaintSelectionRequest(request.Col, request.Row, request.EndCol, request.EndRow)
+		self.servePaintSelectionRequest(request.col, request.row, request.endCol, request.endRow)
 	}
 }
 

@@ -35,7 +35,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		startRow:           int64(0),
 		endColumn:          int64(0),
 		endRow:             int64(0),
-		paintQueue:         make(chan *SheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
+		paintQueue:         make(chan *sheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
 		colStartXCoords:    make([]float64, 0, 1+int(math.Ceil((maxX-startX+1)/DEFAULT_CELL_WIDTH))),
 		rowStartYCoords:    make([]float64, 0, 1+int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
 		mark:               MarkData{0, 0, 0, 0},
@@ -89,10 +89,10 @@ func (self *Sheet) Stop() {
 // if col/row = -1 no changes are made before whole-redraw
 // changeSheetStartCol/changeSheetStartRow is also used to set self.layoutFromStartCol/self.layoutFromStartRow
 func (self *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSheetStartRow bool) {
-	req := &SheetPaintRequest{
-		Kind:                SheetPaintWholeSheet,
-		Col:                 col,
-		Row:                 row,
+	req := &sheetPaintRequest{
+		kind:                SheetPaintWholeSheet,
+		col:                 col,
+		row:                 row,
 		changeSheetStartCol: changeSheetStartCol,
 		changeSheetStartRow: changeSheetStartRow,
 	}
@@ -112,12 +112,12 @@ func (self *Sheet) PaintCell(col int64, row int64) {
 		return
 	}
 
-	self.addPaintRequest(&SheetPaintRequest{
-		Kind:   SheetPaintCell,
-		Col:    col,
-		Row:    row,
-		EndCol: col,
-		EndRow: row,
+	self.addPaintRequest(&sheetPaintRequest{
+		kind:   SheetPaintCell,
+		col:    col,
+		row:    row,
+		endCol: col,
+		endRow: row,
 	})
 }
 
@@ -127,12 +127,12 @@ func (self *Sheet) PaintCellRange(colStart int64, rowStart int64, colEnd int64, 
 		return
 	}
 
-	self.addPaintRequest(&SheetPaintRequest{
-		Kind:   SheetPaintCellRange,
-		Col:    colStart,
-		Row:    rowStart,
-		EndCol: colEnd,
-		EndRow: rowEnd,
+	self.addPaintRequest(&sheetPaintRequest{
+		kind:   SheetPaintCellRange,
+		col:    colStart,
+		row:    rowStart,
+		endCol: colEnd,
+		endRow: rowEnd,
 	})
 }
 
@@ -141,12 +141,12 @@ func (self *Sheet) PaintCellSelection(col, row int64) {
 		return
 	}
 
-	self.addPaintRequest(&SheetPaintRequest{
-		Kind:   SheetPaintSelection,
-		Col:    col,
-		Row:    row,
-		EndCol: col,
-		EndRow: row,
+	self.addPaintRequest(&sheetPaintRequest{
+		kind:   SheetPaintSelection,
+		col:    col,
+		row:    row,
+		endCol: col,
+		endRow: row,
 	})
 }
 
@@ -155,11 +155,11 @@ func (self *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd in
 		return
 	}
 
-	self.addPaintRequest(&SheetPaintRequest{
-		Kind:   SheetPaintSelection,
-		Col:    colStart,
-		Row:    rowStart,
-		EndCol: colEnd,
-		EndRow: rowEnd,
+	self.addPaintRequest(&sheetPaintRequest{
+		kind:   SheetPaintSelection,
+		col:    colStart,
+		row:    rowStart,
+		endCol: colEnd,
+		endRow: rowEnd,
 	})
 }
