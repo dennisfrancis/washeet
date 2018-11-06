@@ -1,6 +1,7 @@
 package washeet
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -171,5 +172,11 @@ func (self *Sheet) addPaintRequest(request *SheetPaintRequest) {
 	if self == nil {
 		return
 	}
-	self.paintQueue <- request
+
+	select {
+	case self.paintQueue <- request:
+	default:
+		// Queue is full, drop request
+		fmt.Printf("[D]")
+	}
 }
