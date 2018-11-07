@@ -169,7 +169,7 @@ func (self *Sheet) trimRangeToView(colStart int64, rowStart int64, colEnd int64,
 
 func (self *Sheet) addPaintRequest(request *sheetPaintRequest) {
 
-	if self == nil {
+	if self == nil || self.stopSignal {
 		return
 	}
 

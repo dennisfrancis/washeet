@@ -4,6 +4,7 @@ import (
 	//	"fmt"
 	"math"
 	"syscall/js"
+	"time"
 )
 
 func NewSheet(canvasElement, container *js.Value, startX float64, startY float64, maxX float64, maxY float64,
@@ -79,6 +80,8 @@ func (self *Sheet) Stop() {
 	self.teardownMouseHandlers()
 
 	self.stopSignal = true
+	time.Sleep(100 * time.Millisecond)
+	close(self.paintQueue)
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
 	noStrokeFillRectNoAdjust(&self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
