@@ -19,6 +19,7 @@ func (self *Sheet) processQueue() {
 				<-self.rafPendingQueue
 			})
 			self.rafPendingQueue <- js.Global().Call("requestAnimationFrame", currRFRequest)
+			currRFRequest.Release()
 		default:
 			if self.stopSignal {
 				close(self.rafPendingQueue)

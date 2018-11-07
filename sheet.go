@@ -30,7 +30,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		maxY:               maxY,
 		dataSource:         dSrc,
 		dataSink:           dSink,
-		rafPendingQueue:    make(chan js.Value, SHEET_PAINT_QUEUE_LENGTH),
+		rafPendingQueue:    make(chan js.Value),
 		startColumn:        int64(0),
 		startRow:           int64(0),
 		endColumn:          int64(0),
