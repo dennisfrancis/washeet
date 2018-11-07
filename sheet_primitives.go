@@ -167,16 +167,19 @@ func (self *Sheet) trimRangeToView(colStart int64, rowStart int64, colEnd int64,
 		minInt64(colEnd, self.endColumn), minInt64(rowEnd, self.endRow)
 }
 
-func (self *Sheet) addPaintRequest(request *sheetPaintRequest) {
+func (self *Sheet) addPaintRequest(request *sheetPaintRequest) bool {
 
 	if self == nil || self.stopSignal {
-		return
+		return false
 	}
 
+	queued := false
 	select {
 	case self.paintQueue <- request:
+		queued = true
 	default:
 		// Queue is full, drop request
 		fmt.Printf("[D]")
 	}
+	return queued
 }
