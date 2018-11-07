@@ -6,40 +6,33 @@ import (
 	"time"
 )
 
-func (self *Sheet) processQueue() {
+func (self *Sheet) launchRenderer() {
 
 	if self == nil {
 		return
 	}
 
-	for {
-
-		if self.stopSignal {
-			// Don't draw anymore
-			self.emptyPaintQueue()
-			self.stopWaitChan <- true
-			return
-		}
-
-		select {
-
-		case request := <-self.paintQueue:
-			currRFRequest := js.NewCallback(func(args []js.Value) {
-				self.servePaintRequest(request)
-				<-self.rafPendingQueue
-			})
-			self.rafPendingQueue <- js.Global().Call("requestAnimationFrame", currRFRequest)
-			currRFRequest.Release()
-
-		default:
-
-			time.Sleep(50 * time.Millisecond)
-		}
-	}
+	self.rafWorkerCallback = js.NewCallback(self.rafWorker)
+	js.Global().Call("requestAnimationFrame", self.rafWorkerCallback)
 }
 
-func (self *Sheet) emptyPaintQueue() {
-	// assumes paintQueue has been closed by now in self.Stop()
-	for range self.paintQueue {
+func (self *Sheet) rafWorker(args []js.Value) {
+
+	if self.stopSignal {
+		// This will be the last rafWorker() call to be made
+		<-self.stopRequest
+		return
+	}
+
+	select {
+	case <-self.stopRequest:
+		// This will be the last rafWorker() call to be made
+		return
+	case request := <-self.paintQueue:
+		self.servePaintRequest(request)
+		js.Global().Call("requestAnimationFrame", self.rafWorkerCallback)
+	default:
+		time.Sleep(20 * time.Millisecond)
+		js.Global().Call("requestAnimationFrame", self.rafWorkerCallback)
 	}
 }

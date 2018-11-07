@@ -31,7 +31,6 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		maxY:               maxY,
 		dataSource:         dSrc,
 		dataSink:           dSink,
-		rafPendingQueue:    make(chan js.Value),
 		startColumn:        int64(0),
 		startRow:           int64(0),
 		endColumn:          int64(0),
@@ -41,7 +40,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		rowStartYCoords:    make([]float64, 0, 1+int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
 		mark:               MarkData{0, 0, 0, 0},
 		stopSignal:         false,
-		stopWaitChan:       make(chan bool),
+		stopRequest:        make(chan struct{}),
 		mouseState:         defaultMouseState(),
 		selectionState:     defaultSelectionState(),
 		layoutFromStartCol: true,
@@ -67,7 +66,7 @@ func (self *Sheet) Start() {
 	}
 
 	self.stopSignal = false
-	go self.processQueue()
+	self.launchRenderer()
 }
 
 func (self *Sheet) Stop() {
@@ -80,13 +79,14 @@ func (self *Sheet) Stop() {
 	self.teardownMouseHandlers()
 
 	self.stopSignal = true
+	self.stopRequest <- struct{}{} // Will block till the rafWorkerCallback senses this
 	time.Sleep(100 * time.Millisecond)
-	close(self.paintQueue)
+
+	self.rafWorkerCallback.Release()
+
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
 	noStrokeFillRectNoAdjust(&self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
-	// Wait till we get signal from paint-queue when it it has finished
-	<-self.stopWaitChan
 }
 
 // if col/row = -1 no changes are made before whole-redraw

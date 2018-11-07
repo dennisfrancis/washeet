@@ -71,23 +71,24 @@ type Sheet struct {
 	dataSource SheetDataProvider
 	dataSink   SheetModelUpdater
 
-	rafPendingQueue chan js.Value
-
 	startColumn int64
 	startRow    int64
 
 	endColumn int64
 	endRow    int64
 
-	paintQueue chan *sheetPaintRequest
+	paintQueue        chan *sheetPaintRequest
+	rafWorkerCallback js.Callback
 
 	colStartXCoords []float64
 	rowStartYCoords []float64
 
-	mark         MarkData
-	stopSignal   bool
-	stopWaitChan chan bool
-	ehMutex      sync.Mutex
+	mark MarkData
+
+	stopSignal  bool
+	stopRequest chan struct{}
+
+	ehMutex sync.Mutex
 
 	mouseState     MouseState
 	selectionState SelectionState
