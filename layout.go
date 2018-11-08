@@ -1,5 +1,25 @@
 package washeet
 
+import (
+	"math"
+)
+
+func NewLayoutData(originX, originY, maxX, maxY float64) *layoutData {
+
+	if maxX <= originX || maxY <= originY {
+		return nil
+	}
+
+	return &layoutData{
+		startColumn:     int64(0),
+		startRow:        int64(0),
+		endColumn:       int64(0),
+		endRow:          int64(0),
+		colStartXCoords: make([]float64, 0, 1+int(math.Ceil((maxX-originX+1)/DEFAULT_CELL_WIDTH))),
+		rowStartYCoords: make([]float64, 0, 1+int(math.Ceil((maxY-originY+1)/DEFAULT_CELL_HEIGHT))),
+	}
+}
+
 func (self *Sheet) computeLayout() {
 
 	if self == nil {

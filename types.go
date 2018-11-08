@@ -56,6 +56,17 @@ type SelectionState struct {
 	refCurrCell  CellCoords
 }
 
+type layoutData struct {
+	startColumn int64
+	startRow    int64
+
+	endColumn int64
+	endRow    int64
+
+	colStartXCoords []float64
+	rowStartYCoords []float64
+}
+
 type Sheet struct {
 	document          js.Value
 	window            js.Value
