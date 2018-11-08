@@ -1,7 +1,7 @@
 package washeet
 
 import (
-	//	"fmt"
+	//"fmt"
 	"math"
 	"syscall/js"
 )
@@ -35,16 +35,17 @@ func (self *Sheet) setupMousedownHandler() {
 		event := args[0]
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
+		layout := self.evtHndlrLayoutData
 		//fmt.Printf("click at (%f, %f)\n", x, y)
 		buttonCode := event.Get("button").Int()
 		if buttonCode == 0 {
-			xi, yi := self.getCellIndex(x, y)
+			xi, yi := self.getCellIndex(layout, x, y)
 			//fmt.Printf("cell index = (%d, %d)\n", xi, yi)
 			if xi < 0 || yi < 0 {
 				return
 			}
 			self.mouseState.setLeftDown()
-			col, row := self.startColumn+xi, self.startRow+yi
+			col, row := layout.startColumn+xi, layout.startRow+yi
 			self.selectionState.setRefStartCell(col, row)
 			self.selectionState.setRefCurrCell(col, row)
 			self.PaintCellSelection(col, row)
@@ -88,8 +89,9 @@ func (self *Sheet) setupMousemoveHandler() {
 		event := args[0]
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
-		xidx, yidx := self.getCellIndex(x, y)
-		bx, by, nearestxidx, nearestyidx := self.getNearestBorderXY(x, y, xidx, yidx)
+		layout := self.evtHndlrLayoutData
+		xidx, yidx := self.getCellIndex(layout, x, y)
+		bx, by, nearestxidx, nearestyidx := self.getNearestBorderXY(layout, x, y, xidx, yidx)
 
 		// bx and by are the nearest cell's start coordinates
 		// so should not show resize mouse pointer for start borders of first column(col-resize) or first row(row-resize)
@@ -106,7 +108,7 @@ func (self *Sheet) setupMousemoveHandler() {
 				defer self.ehMutex.Unlock()
 				refStartCell := self.selectionState.getRefStartCell()
 				refCurrCell := self.selectionState.getRefCurrCell()
-				col, row := self.startColumn+xidx, self.startRow+yidx
+				col, row := layout.startColumn+xidx, layout.startRow+yidx
 
 				if refCurrCell.Col == col && refCurrCell.Row == row {
 					return
@@ -238,19 +240,21 @@ func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 	changeCol, changeRow := int64(-1), int64(-1)
 	changeSheetStartCol, changeSheetStartRow := true, true
 
-	if col < self.startColumn {
+	layout := self.evtHndlrLayoutData
+
+	if col < layout.startColumn {
 		changeCol = col
 		shouldPaintWhole = true
-	} else if col >= self.endColumn {
+	} else if col >= layout.endColumn {
 		changeCol = col
 		changeSheetStartCol = false
 		shouldPaintWhole = true
 	}
 
-	if row < self.startRow {
+	if row < layout.startRow {
 		changeRow = row
 		shouldPaintWhole = true
-	} else if row >= self.endRow {
+	} else if row >= layout.endRow {
 		changeRow = row
 		changeSheetStartRow = false
 		shouldPaintWhole = true
@@ -279,6 +283,7 @@ func (self *Sheet) keyboardCommandHandler(keycode int) {
 	// Ctrl key is down too, thats why this is now a command.
 	if keycode == int('c') || keycode == int('C') {
 		// Ctrl+C
+		//fmt.Println("Copy")
 		self.copySelectionToClipboard()
 	}
 }

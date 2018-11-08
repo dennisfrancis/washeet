@@ -29,31 +29,13 @@ func (self *Sheet) servePaintWholeSheetRequest(col, row int64, changeSheetStartC
 		return
 	}
 
-	// Recompute startColumn/startRow/endColumn/endRow colStartXCoords/rowStartYCoords
-	self.layoutFromStartCol = changeSheetStartCol
-	self.layoutFromStartRow = changeSheetStartRow
+	rafLD := self.rafLayoutData
 
-	if col >= 0 {
-		if changeSheetStartCol {
-			self.startColumn = col
-		} else {
-			self.endColumn = col
-		}
-	}
+	self.computeLayout(rafLD, col, row, changeSheetStartCol, changeSheetStartRow)
 
-	if row >= 0 {
-		if changeSheetStartRow {
-			self.startRow = row
-		} else {
-			self.endRow = row
-		}
-	}
+	self.drawHeaders(rafLD)
 
-	self.computeLayout()
-
-	self.drawHeaders()
-
-	self.servePaintCellRangeRequest(self.startColumn, self.startRow, self.endColumn, self.endRow)
+	self.servePaintCellRangeRequest(rafLD.startColumn, rafLD.startRow, rafLD.endColumn, rafLD.endRow)
 
 	self.servePaintSelectionRequest(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
 }
@@ -64,9 +46,11 @@ func (self *Sheet) servePaintCellRangeRequest(colStart int64, rowStart int64, co
 		return
 	}
 
-	c1, r1, c2, r2 := self.trimRangeToView(colStart, rowStart, colEnd, rowEnd)
+	rafLD := self.rafLayoutData
 
-	self.drawRange(c1, r1, c2, r2)
+	c1, r1, c2, r2 := self.trimRangeToView(rafLD, colStart, rowStart, colEnd, rowEnd)
+
+	self.drawRange(rafLD, c1, r1, c2, r2)
 }
 
 // Warning : assumes range supplied is well-ordered
@@ -76,10 +60,12 @@ func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd
 		return
 	}
 
+	rafLD := self.rafLayoutData
+
 	// Undo the current selection
-	if !(self.mark.C1 > self.endColumn || self.mark.C2 < self.startColumn || self.mark.R1 > self.endRow || self.mark.R2 < self.startRow) {
+	if !(self.mark.C1 > rafLD.endColumn || self.mark.C2 < rafLD.startColumn || self.mark.R1 > rafLD.endRow || self.mark.R2 < rafLD.startRow) {
 		// if current selection is in view at least partially
-		c1, r1, c2, r2 := self.trimRangeToView(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
+		c1, r1, c2, r2 := self.trimRangeToView(rafLD, self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
 		self.servePaintCellRangeRequest(c1, r1, c2, r2)
 	}
 
@@ -87,14 +73,14 @@ func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd
 	self.mark.R1, self.mark.R2 = rowStart, rowEnd
 
 	// check if mark is out of view
-	if self.mark.C1 > self.endColumn || self.mark.C2 < self.startColumn || self.mark.R1 > self.endRow || self.mark.R2 < self.startRow {
+	if self.mark.C1 > rafLD.endColumn || self.mark.C2 < rafLD.startColumn || self.mark.R1 > rafLD.endRow || self.mark.R2 < rafLD.startRow {
 		return
 	}
 
 	//fmt.Printf("mark = %+v\n", self.mark)
 
-	c1, r1, c2, r2 := self.trimRangeToView(self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
-	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := self.getIndicesAndRect(c1, r1, c2, r2)
+	c1, r1, c2, r2 := self.trimRangeToView(rafLD, self.mark.C1, self.mark.R1, self.mark.C2, self.mark.R2)
+	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := self.getIndicesAndRect(rafLD, c1, r1, c2, r2)
 
 	if !self.mark.IsSingleCell() {
 		strokeFillRect(&self.canvasContext, xlow, ylow, xhigh, yhigh, SELECTION_STROKE_COLOR, SELECTION_FILL_COLOR)
@@ -112,17 +98,17 @@ func (self *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEnd
 		if refStartCell.Row == r2 {
 			startCellRowIdx = ri2
 		}
-		xStartCellBeg := math.Max(xlow, self.colStartXCoords[startCellColIdx])
-		yStartCellBeg := math.Max(ylow, self.rowStartYCoords[startCellRowIdx])
-		xStartCellEnd := math.Min(self.colStartXCoords[startCellColIdx+1], self.maxX)
-		yStartCellEnd := math.Min(self.rowStartYCoords[startCellRowIdx+1], self.maxY)
+		xStartCellBeg := math.Max(xlow, rafLD.colStartXCoords[startCellColIdx])
+		yStartCellBeg := math.Max(ylow, rafLD.rowStartYCoords[startCellRowIdx])
+		xStartCellEnd := math.Min(rafLD.colStartXCoords[startCellColIdx+1], self.maxX)
+		yStartCellEnd := math.Min(rafLD.rowStartYCoords[startCellRowIdx+1], self.maxY)
 		strokeNoFillRect(&self.canvasContext, xStartCellBeg, yStartCellBeg, xStartCellEnd, yStartCellEnd, CURSOR_STROKE_COLOR)
 		strokeNoFillRect(&self.canvasContext, xStartCellBeg+1, yStartCellBeg+1, xStartCellEnd-1, yStartCellEnd-1, CURSOR_STROKE_COLOR)
 	}
 
 	if c2 == self.mark.C2 && r2 == self.mark.R2 {
-		xLastCellEnd := self.colStartXCoords[ci2+1]
-		yLastCellEnd := self.rowStartYCoords[ri2+1]
+		xLastCellEnd := rafLD.colStartXCoords[ci2+1]
+		yLastCellEnd := rafLD.rowStartYCoords[ri2+1]
 		if xLastCellEnd <= self.maxX && yLastCellEnd <= self.maxY {
 			strokeFillRect(&self.canvasContext, xLastCellEnd-6, yLastCellEnd-6, xLastCellEnd, yLastCellEnd, CURSOR_STROKE_COLOR, CURSOR_STROKE_COLOR)
 		}

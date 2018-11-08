@@ -1,8 +1,8 @@
 package washeet
 
 import (
-	//	"fmt"
-	"math"
+	//"fmt"
+	//"math"
 	"syscall/js"
 	"time"
 )
@@ -31,20 +31,14 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		maxY:               maxY,
 		dataSource:         dSrc,
 		dataSink:           dSink,
-		startColumn:        int64(0),
-		startRow:           int64(0),
-		endColumn:          int64(0),
-		endRow:             int64(0),
+		rafLayoutData:      NewLayoutData(startX, startY, maxX, maxY),
+		evtHndlrLayoutData: NewLayoutData(startX, startY, maxX, maxY),
 		paintQueue:         make(chan *sheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
-		colStartXCoords:    make([]float64, 0, 1+int(math.Ceil((maxX-startX+1)/DEFAULT_CELL_WIDTH))),
-		rowStartYCoords:    make([]float64, 0, 1+int(math.Ceil((maxY-startY+1)/DEFAULT_CELL_HEIGHT))),
 		mark:               MarkData{0, 0, 0, 0},
 		stopSignal:         false,
 		stopRequest:        make(chan struct{}),
 		mouseState:         defaultMouseState(),
 		selectionState:     defaultSelectionState(),
-		layoutFromStartCol: true,
-		layoutFromStartRow: true,
 	}
 
 	// TODO : Move these somewhere else
@@ -52,7 +46,8 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	setLineWidth(&ret.canvasContext, 1.0)
 
 	ret.setupClipboardTextArea()
-	ret.PaintWholeSheet(ret.startColumn, ret.startRow, ret.layoutFromStartCol, ret.layoutFromStartRow)
+	ret.PaintWholeSheet(ret.evtHndlrLayoutData.startColumn, ret.evtHndlrLayoutData.startRow,
+		ret.evtHndlrLayoutData.layoutFromStartCol, ret.evtHndlrLayoutData.layoutFromStartRow)
 	ret.setupMouseHandlers()
 	ret.setupKeyboardHandlers()
 
@@ -99,7 +94,14 @@ func (self *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSh
 		changeSheetStartCol: changeSheetStartCol,
 		changeSheetStartRow: changeSheetStartRow,
 	}
-	return self.addPaintRequest(req)
+
+	if self.addPaintRequest(req) {
+		// Layout will be partly/fully computed in RAF thread, so independently compute that here too.
+		self.computeLayout(self.evtHndlrLayoutData, col, row, changeSheetStartCol, changeSheetStartRow)
+		return true
+	}
+
+	return false
 }
 
 func (self *Sheet) PaintCell(col int64, row int64) bool {
@@ -108,10 +110,12 @@ func (self *Sheet) PaintCell(col int64, row int64) bool {
 		return false
 	}
 
+	layout := self.evtHndlrLayoutData
+
 	// optimization : don't fill the queue with these
 	// if we know they are not going to be painted.
-	if col < self.startColumn || col > self.endColumn ||
-		row < self.startRow || row > self.endRow {
+	if col < layout.startColumn || col > layout.endColumn ||
+		row < layout.startRow || row > layout.endRow {
 		return false
 	}
 

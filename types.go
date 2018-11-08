@@ -65,6 +65,9 @@ type layoutData struct {
 
 	colStartXCoords []float64
 	rowStartYCoords []float64
+
+	layoutFromStartCol bool
+	layoutFromStartRow bool
 }
 
 type Sheet struct {
@@ -82,17 +85,11 @@ type Sheet struct {
 	dataSource SheetDataProvider
 	dataSink   SheetModelUpdater
 
-	startColumn int64
-	startRow    int64
-
-	endColumn int64
-	endRow    int64
+	rafLayoutData      *layoutData
+	evtHndlrLayoutData *layoutData
 
 	paintQueue        chan *sheetPaintRequest
 	rafWorkerCallback js.Callback
-
-	colStartXCoords []float64
-	rowStartYCoords []float64
 
 	mark MarkData
 
