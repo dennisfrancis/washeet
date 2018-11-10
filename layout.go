@@ -22,9 +22,9 @@ func NewLayoutData(originX, originY, maxX, maxY float64) *layoutData {
 	}
 }
 
-func (self *Sheet) computeLayout(layout *layoutData, col, row int64, changeSheetStartCol, changeSheetStartRow bool) {
+func (sheet *Sheet) computeLayout(layout *layoutData, col, row int64, changeSheetStartCol, changeSheetStartRow bool) {
 
-	if self == nil {
+	if sheet == nil {
 		return
 	}
 
@@ -50,23 +50,23 @@ func (self *Sheet) computeLayout(layout *layoutData, col, row int64, changeSheet
 
 	// Start of actual top left cell to be drawn after accounting
 	// for the row/col-headers
-	minX, minY := self.origX+DEFAULT_CELL_WIDTH, self.origY+DEFAULT_CELL_HEIGHT
+	minX, minY := sheet.origX+DEFAULT_CELL_WIDTH, sheet.origY+DEFAULT_CELL_HEIGHT
 
 	if layout.layoutFromStartCol {
 		layout.endColumn, layout.colStartXCoords = computeCellsCoordsRefStart(
 			minX,
-			self.maxX,
+			sheet.maxX,
 			layout.startColumn,
-			self.dataSource.GetColumnWidth,
+			sheet.dataSource.GetColumnWidth,
 			DEFAULT_CELL_WIDTH,
 			layout.colStartXCoords,
 		)
 	} else {
 		layout.startColumn, layout.endColumn, layout.colStartXCoords = computeCellsCoordsRefEnd(
 			minX,
-			self.maxX,
+			sheet.maxX,
 			layout.endColumn,
-			self.dataSource.GetColumnWidth,
+			sheet.dataSource.GetColumnWidth,
 			DEFAULT_CELL_WIDTH,
 			layout.colStartXCoords,
 		)
@@ -75,18 +75,18 @@ func (self *Sheet) computeLayout(layout *layoutData, col, row int64, changeSheet
 	if layout.layoutFromStartRow {
 		layout.endRow, layout.rowStartYCoords = computeCellsCoordsRefStart(
 			minY,
-			self.maxY,
+			sheet.maxY,
 			layout.startRow,
-			self.dataSource.GetRowHeight,
+			sheet.dataSource.GetRowHeight,
 			DEFAULT_CELL_HEIGHT,
 			layout.rowStartYCoords,
 		)
 	} else {
 		layout.startRow, layout.endRow, layout.rowStartYCoords = computeCellsCoordsRefEnd(
 			minY,
-			self.maxY,
+			sheet.maxY,
 			layout.endRow,
-			self.dataSource.GetRowHeight,
+			sheet.dataSource.GetRowHeight,
 			DEFAULT_CELL_HEIGHT,
 			layout.rowStartYCoords,
 		)
