@@ -6,69 +6,69 @@ import (
 	"syscall/js"
 )
 
-func (self *Sheet) setupMouseHandlers() {
-	if self == nil {
+func (sheet *Sheet) setupMouseHandlers() {
+	if sheet == nil {
 		return
 	}
 
-	self.setupMousedownHandler()
-	self.setupMouseupHandler()
-	self.setupMousemoveHandler()
+	sheet.setupMousedownHandler()
+	sheet.setupMouseupHandler()
+	sheet.setupMousemoveHandler()
 }
 
-func (self *Sheet) teardownMouseHandlers() {
-	if self == nil {
+func (sheet *Sheet) teardownMouseHandlers() {
+	if sheet == nil {
 		return
 	}
 
-	self.teardownMousemoveHandler()
-	self.teardownMouseupHandler()
-	self.teardownMousedownHandler()
+	sheet.teardownMousemoveHandler()
+	sheet.teardownMouseupHandler()
+	sheet.teardownMousedownHandler()
 }
 
-func (self *Sheet) setupMousedownHandler() {
-	if self == nil {
+func (sheet *Sheet) setupMousedownHandler() {
+	if sheet == nil {
 		return
 	}
 
-	self.mousedownHandler = js.NewCallback(func(args []js.Value) {
+	sheet.mousedownHandler = js.NewCallback(func(args []js.Value) {
 		event := args[0]
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
-		layout := self.evtHndlrLayoutData
+		layout := sheet.evtHndlrLayoutData
 		//fmt.Printf("click at (%f, %f)\n", x, y)
 		buttonCode := event.Get("button").Int()
 		if buttonCode == 0 {
-			xi, yi := self.getCellIndex(layout, x, y)
+			xi, yi := sheet.getCellIndex(layout, x, y)
 			//fmt.Printf("cell index = (%d, %d)\n", xi, yi)
 			if xi < 0 || yi < 0 {
 				return
 			}
-			self.mouseState.setLeftDown()
+			sheet.mouseState.setLeftDown()
 			col, row := layout.startColumn+xi, layout.startRow+yi
-			self.selectionState.setRefStartCell(col, row)
-			self.selectionState.setRefCurrCell(col, row)
-			self.PaintCellSelection(col, row)
+			sheet.selectionState.setRefStartCell(col, row)
+			sheet.selectionState.setRefCurrCell(col, row)
+			sheet.PaintCellSelection(col, row)
 		} else if buttonCode == 2 {
-			self.mouseState.setRightDown()
+			sheet.mouseState.setRightDown()
 		}
 	})
 
-	self.canvasElement.Call("addEventListener", "mousedown", self.mousedownHandler)
+	sheet.canvasElement.Call("addEventListener", "mousedown", sheet.mousedownHandler)
 }
 
-func (self *Sheet) setupMouseupHandler() {
-	if self == nil {
+func (sheet *Sheet) setupMouseupHandler() {
+	if sheet == nil {
 		return
 	}
 
-	self.mouseupHandler = js.NewCallback(func(args []js.Value) {
+	sheet.mouseupHandler = js.NewCallback(func(args []js.Value) {
 		event := args[0]
 		buttonCode := event.Get("button").Int()
 		if buttonCode == 0 {
-			self.mouseState.setLeftUp()
+			sheet.mouseState.setLeftUp()
 		} else if buttonCode == 2 {
-			self.mouseState.setRightUp()
+			sheet.mouseState.setRightUp()
 		}
 		/*
 			x := event.Get("offsetX").Float()
@@ -77,37 +77,37 @@ func (self *Sheet) setupMouseupHandler() {
 		*/
 	})
 
-	self.canvasElement.Call("addEventListener", "mouseup", self.mouseupHandler)
+	sheet.canvasElement.Call("addEventListener", "mouseup", sheet.mouseupHandler)
 }
 
-func (self *Sheet) setupMousemoveHandler() {
-	if self == nil {
+func (sheet *Sheet) setupMousemoveHandler() {
+	if sheet == nil {
 		return
 	}
 
-	self.mousemoveHandler = js.NewCallback(func(args []js.Value) {
+	sheet.mousemoveHandler = js.NewCallback(func(args []js.Value) {
 		event := args[0]
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
-		layout := self.evtHndlrLayoutData
-		xidx, yidx := self.getCellIndex(layout, x, y)
-		bx, by, nearestxidx, nearestyidx := self.getNearestBorderXY(layout, x, y, xidx, yidx)
+		layout := sheet.evtHndlrLayoutData
+		xidx, yidx := sheet.getCellIndex(layout, x, y)
+		bx, by, nearestxidx, nearestyidx := sheet.getNearestBorderXY(layout, x, y, xidx, yidx)
 
 		// bx and by are the nearest cell's start coordinates
 		// so should not show resize mouse pointer for start borders of first column(col-resize) or first row(row-resize)
 		if math.Abs(x-bx) <= 1.0 && nearestxidx >= 1 && nearestyidx == -1 {
-			self.canvasElement.Get("style").Set("cursor", "col-resize")
+			sheet.canvasElement.Get("style").Set("cursor", "col-resize")
 		} else if math.Abs(y-by) <= 1.0 && nearestyidx >= 1 && nearestxidx == -1 {
-			self.canvasElement.Get("style").Set("cursor", "row-resize")
-		} else if x >= self.origX && x <= self.maxX && y >= self.origY && y <= self.maxY {
-			self.canvasElement.Get("style").Set("cursor", "cell")
+			sheet.canvasElement.Get("style").Set("cursor", "row-resize")
+		} else if x >= sheet.origX && x <= sheet.maxX && y >= sheet.origY && y <= sheet.maxY {
+			sheet.canvasElement.Get("style").Set("cursor", "cell")
 
 			// selection of a range while in a drag operation
-			if self.mouseState.isLeftDown() {
-				self.ehMutex.Lock()
-				defer self.ehMutex.Unlock()
-				refStartCell := self.selectionState.getRefStartCell()
-				refCurrCell := self.selectionState.getRefCurrCell()
+			if sheet.mouseState.isLeftDown() {
+				sheet.ehMutex.Lock()
+				defer sheet.ehMutex.Unlock()
+				refStartCell := sheet.selectionState.getRefStartCell()
+				refCurrCell := sheet.selectionState.getRefCurrCell()
 				col, row := layout.startColumn+xidx, layout.startRow+yidx
 
 				if refCurrCell.Col == col && refCurrCell.Row == row {
@@ -117,91 +117,91 @@ func (self *Sheet) setupMousemoveHandler() {
 				refCurrCell.Col, refCurrCell.Row = col, row
 				c1, c2 := getInOrder(refStartCell.Col, col)
 				r1, r2 := getInOrder(refStartCell.Row, row)
-				self.PaintCellRangeSelection(c1, r1, c2, r2)
+				sheet.PaintCellRangeSelection(c1, r1, c2, r2)
 			}
 		} else {
 			// for headers
-			self.canvasElement.Get("style").Set("cursor", "auto")
+			sheet.canvasElement.Get("style").Set("cursor", "auto")
 		}
 	})
 
-	self.canvasElement.Call("addEventListener", "mousemove", self.mousemoveHandler)
+	sheet.canvasElement.Call("addEventListener", "mousemove", sheet.mousemoveHandler)
 }
 
-func (self *Sheet) teardownMousedownHandler() {
+func (sheet *Sheet) teardownMousedownHandler() {
 
-	self.canvasElement.Call("removeEventListener", "mousedown", self.mousedownHandler)
-	self.mousedownHandler.Release()
+	sheet.canvasElement.Call("removeEventListener", "mousedown", sheet.mousedownHandler)
+	sheet.mousedownHandler.Release()
 }
 
-func (self *Sheet) teardownMouseupHandler() {
+func (sheet *Sheet) teardownMouseupHandler() {
 
-	self.canvasElement.Call("removeEventListener", "mouseup", self.mouseupHandler)
-	self.mouseupHandler.Release()
+	sheet.canvasElement.Call("removeEventListener", "mouseup", sheet.mouseupHandler)
+	sheet.mouseupHandler.Release()
 }
 
-func (self *Sheet) teardownMousemoveHandler() {
+func (sheet *Sheet) teardownMousemoveHandler() {
 
-	self.canvasElement.Call("removeEventListener", "mousemove", self.mousemoveHandler)
-	self.canvasElement.Get("style").Set("cursor", "auto")
-	self.mousemoveHandler.Release()
+	sheet.canvasElement.Call("removeEventListener", "mousemove", sheet.mousemoveHandler)
+	sheet.canvasElement.Get("style").Set("cursor", "auto")
+	sheet.mousemoveHandler.Release()
 }
 
-func (self *Sheet) setupKeyboardHandlers() {
-	if self == nil {
+func (sheet *Sheet) setupKeyboardHandlers() {
+	if sheet == nil {
 		return
 	}
 
-	self.setupKeydownHandler()
+	sheet.setupKeydownHandler()
 }
 
-func (self *Sheet) teardownKeyboardHandlers() {
-	if self == nil {
+func (sheet *Sheet) teardownKeyboardHandlers() {
+	if sheet == nil {
 		return
 	}
 
-	self.teardownKeydownHandler()
+	sheet.teardownKeydownHandler()
 }
 
-func (self *Sheet) setupKeydownHandler() {
-	if self == nil {
+func (sheet *Sheet) setupKeydownHandler() {
+	if sheet == nil {
 		return
 	}
 
 	// NewEventCallback is used so that we can prevent window scrolling. event.preventDefault calls does not work
-	self.keydownHandler = js.NewEventCallback(js.PreventDefault|js.StopPropagation|js.StopImmediatePropagation, func(event js.Value) {
-		self.ehMutex.Lock()
-		defer self.ehMutex.Unlock()
+	sheet.keydownHandler = js.NewEventCallback(js.PreventDefault|js.StopPropagation|js.StopImmediatePropagation, func(event js.Value) {
+		sheet.ehMutex.Lock()
+		defer sheet.ehMutex.Unlock()
 		keycode := event.Get("keyCode").Int()
 		shiftKeyDown := event.Get("shiftKey").Bool()
 		ctrlKeyDown := event.Get("ctrlKey").Bool()
 		if keycode >= 37 && keycode <= 40 {
-			self.arrowKeyHandler(keycode, shiftKeyDown)
+			sheet.arrowKeyHandler(keycode, shiftKeyDown)
 		} else if ctrlKeyDown {
 			// some command like Ctrl+C, Ctrl+V
-			self.keyboardCommandHandler(keycode)
+			sheet.keyboardCommandHandler(keycode)
 		}
 	})
 
-	self.canvasElement.Call("addEventListener", "keydown", self.keydownHandler)
+	sheet.canvasElement.Call("addEventListener", "keydown", sheet.keydownHandler)
 }
 
-func (self *Sheet) teardownKeydownHandler() {
-	if self == nil {
+func (sheet *Sheet) teardownKeydownHandler() {
+	if sheet == nil {
 		return
 	}
 
-	self.canvasElement.Call("removeEventListener", "keydown", self.keydownHandler)
-	self.keydownHandler.Release()
+	sheet.canvasElement.Call("removeEventListener", "keydown", sheet.keydownHandler)
+	sheet.keydownHandler.Release()
 }
 
-func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
-	if self == nil {
+func (sheet *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
+	if sheet == nil {
 		return
 	}
 
-	refStartCell := self.selectionState.getRefStartCell()
-	refCurrCell := self.selectionState.getRefCurrCell()
+	refStartCell := sheet.selectionState.getRefStartCell()
+	refCurrCell := sheet.selectionState.getRefCurrCell()
 	col, row := refStartCell.Col, refStartCell.Row
 	if shiftKeyDown {
 		col, row = refCurrCell.Col, refCurrCell.Row
@@ -240,7 +240,7 @@ func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 	changeCol, changeRow := int64(-1), int64(-1)
 	changeSheetStartCol, changeSheetStartRow := true, true
 
-	layout := self.evtHndlrLayoutData
+	layout := sheet.evtHndlrLayoutData
 
 	if col < layout.startColumn {
 		changeCol = col
@@ -261,29 +261,29 @@ func (self *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 	}
 
 	if shouldPaintWhole {
-		self.PaintWholeSheet(changeCol, changeRow, changeSheetStartCol, changeSheetStartRow)
+		sheet.PaintWholeSheet(changeCol, changeRow, changeSheetStartCol, changeSheetStartRow)
 	}
 
 	if paintFlag {
 		if shiftKeyDown {
-			self.selectionState.setRefCurrCell(col, row)
+			sheet.selectionState.setRefCurrCell(col, row)
 			c1, c2 := getInOrder(col, refStartCell.Col)
 			r1, r2 := getInOrder(row, refStartCell.Row)
-			self.PaintCellRangeSelection(c1, r1, c2, r2)
+			sheet.PaintCellRangeSelection(c1, r1, c2, r2)
 		} else {
 			// Change both startCell and currCell references
-			self.selectionState.setRefStartCell(col, row)
-			self.selectionState.setRefCurrCell(col, row)
-			self.PaintCellSelection(col, row)
+			sheet.selectionState.setRefStartCell(col, row)
+			sheet.selectionState.setRefCurrCell(col, row)
+			sheet.PaintCellSelection(col, row)
 		}
 	}
 }
 
-func (self *Sheet) keyboardCommandHandler(keycode int) {
+func (sheet *Sheet) keyboardCommandHandler(keycode int) {
 	// Ctrl key is down too, thats why this is now a command.
 	if keycode == int('c') || keycode == int('C') {
 		// Ctrl+C
 		//fmt.Println("Copy")
-		self.copySelectionToClipboard()
+		sheet.copySelectionToClipboard()
 	}
 }
