@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func NewLayoutData(originX, originY, maxX, maxY float64) *layoutData {
+func newLayoutData(originX, originY, maxX, maxY float64) *layoutData {
 
 	if maxX <= originX || maxY <= originY {
 		return nil
