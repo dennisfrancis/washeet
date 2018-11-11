@@ -54,39 +54,39 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	return ret
 }
 
-func (self *Sheet) Start() {
+func (sheet *Sheet) Start() {
 
-	if self == nil {
+	if sheet == nil {
 		return
 	}
 
-	self.stopSignal = false
-	self.launchRenderer()
+	sheet.stopSignal = false
+	sheet.launchRenderer()
 }
 
-func (self *Sheet) Stop() {
+func (sheet *Sheet) Stop() {
 
-	if self == nil || self.stopSignal {
+	if sheet == nil || sheet.stopSignal {
 		return
 	}
 
-	self.teardownKeyboardHandlers()
-	self.teardownMouseHandlers()
+	sheet.teardownKeyboardHandlers()
+	sheet.teardownMouseHandlers()
 
-	self.stopSignal = true
-	self.stopRequest <- struct{}{} // Will block till the rafWorkerCallback senses this
+	sheet.stopSignal = true
+	sheet.stopRequest <- struct{}{} // Will block till the rafWorkerCallback senses this
 	time.Sleep(100 * time.Millisecond)
 
-	self.rafWorkerCallback.Release()
+	sheet.rafWorkerCallback.Release()
 
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
-	noStrokeFillRectNoAdjust(&self.canvasContext, self.origX, self.origY, self.maxX+1.0, self.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
+	noStrokeFillRectNoAdjust(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX+1.0, sheet.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
 }
 
 // if col/row = -1 no changes are made before whole-redraw
-// changeSheetStartCol/changeSheetStartRow is also used to set self.layoutFromStartCol/self.layoutFromStartRow
-func (self *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSheetStartRow bool) bool {
+// changeSheetStartCol/changeSheetStartRow is also used to set sheet.layoutFromStartCol/sheet.layoutFromStartRow
+func (sheet *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSheetStartRow bool) bool {
 	req := &sheetPaintRequest{
 		kind:                sheetPaintWholeSheet,
 		col:                 col,
@@ -95,22 +95,22 @@ func (self *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSh
 		changeSheetStartRow: changeSheetStartRow,
 	}
 
-	if self.addPaintRequest(req) {
+	if sheet.addPaintRequest(req) {
 		// Layout will be partly/fully computed in RAF thread, so independently compute that here too.
-		self.computeLayout(self.evtHndlrLayoutData, col, row, changeSheetStartCol, changeSheetStartRow)
+		sheet.computeLayout(sheet.evtHndlrLayoutData, col, row, changeSheetStartCol, changeSheetStartRow)
 		return true
 	}
 
 	return false
 }
 
-func (self *Sheet) PaintCell(col int64, row int64) bool {
+func (sheet *Sheet) PaintCell(col int64, row int64) bool {
 
-	if self == nil {
+	if sheet == nil {
 		return false
 	}
 
-	layout := self.evtHndlrLayoutData
+	layout := sheet.evtHndlrLayoutData
 
 	// optimization : don't fill the queue with these
 	// if we know they are not going to be painted.
@@ -119,7 +119,7 @@ func (self *Sheet) PaintCell(col int64, row int64) bool {
 		return false
 	}
 
-	return self.addPaintRequest(&sheetPaintRequest{
+	return sheet.addPaintRequest(&sheetPaintRequest{
 		kind:   sheetPaintCell,
 		col:    col,
 		row:    row,
@@ -128,13 +128,13 @@ func (self *Sheet) PaintCell(col int64, row int64) bool {
 	})
 }
 
-func (self *Sheet) PaintCellRange(colStart int64, rowStart int64, colEnd int64, rowEnd int64) bool {
+func (sheet *Sheet) PaintCellRange(colStart int64, rowStart int64, colEnd int64, rowEnd int64) bool {
 
-	if self == nil {
+	if sheet == nil {
 		return false
 	}
 
-	return self.addPaintRequest(&sheetPaintRequest{
+	return sheet.addPaintRequest(&sheetPaintRequest{
 		kind:   sheetPaintCellRange,
 		col:    colStart,
 		row:    rowStart,
@@ -143,12 +143,12 @@ func (self *Sheet) PaintCellRange(colStart int64, rowStart int64, colEnd int64, 
 	})
 }
 
-func (self *Sheet) PaintCellSelection(col, row int64) bool {
-	if self == nil {
+func (sheet *Sheet) PaintCellSelection(col, row int64) bool {
+	if sheet == nil {
 		return false
 	}
 
-	return self.addPaintRequest(&sheetPaintRequest{
+	return sheet.addPaintRequest(&sheetPaintRequest{
 		kind:   sheetPaintSelection,
 		col:    col,
 		row:    row,
@@ -157,12 +157,12 @@ func (self *Sheet) PaintCellSelection(col, row int64) bool {
 	})
 }
 
-func (self *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd int64) bool {
-	if self == nil {
+func (sheet *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd int64) bool {
+	if sheet == nil {
 		return false
 	}
 
-	return self.addPaintRequest(&sheetPaintRequest{
+	return sheet.addPaintRequest(&sheetPaintRequest{
 		kind:   sheetPaintSelection,
 		col:    colStart,
 		row:    rowStart,
