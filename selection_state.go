@@ -1,19 +1,19 @@
 package washeet
 
-func (self *SelectionState) setRefStartCell(col, row int64) {
-	self.refStartCell.Col, self.refStartCell.Row = col, row
+func (selection *SelectionState) setRefStartCell(col, row int64) {
+	selection.refStartCell.Col, selection.refStartCell.Row = col, row
 }
 
-func (self *SelectionState) setRefCurrCell(col, row int64) {
-	self.refCurrCell.Col, self.refCurrCell.Row = col, row
+func (selection *SelectionState) setRefCurrCell(col, row int64) {
+	selection.refCurrCell.Col, selection.refCurrCell.Row = col, row
 }
 
-func (self *SelectionState) getRefStartCell() *CellCoords {
-	return &(self.refStartCell)
+func (selection *SelectionState) getRefStartCell() *CellCoords {
+	return &(selection.refStartCell)
 }
 
-func (self *SelectionState) getRefCurrCell() *CellCoords {
-	return &(self.refCurrCell)
+func (selection *SelectionState) getRefCurrCell() *CellCoords {
+	return &(selection.refCurrCell)
 }
 
 func defaultSelectionState() SelectionState {
