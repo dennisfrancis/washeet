@@ -6,33 +6,33 @@ import (
 	"time"
 )
 
-func (self *Sheet) launchRenderer() {
+func (sheet *Sheet) launchRenderer() {
 
-	if self == nil {
+	if sheet == nil {
 		return
 	}
 
-	self.rafWorkerCallback = js.NewCallback(self.rafWorker)
-	js.Global().Call("requestAnimationFrame", self.rafWorkerCallback)
+	sheet.rafWorkerCallback = js.NewCallback(sheet.rafWorker)
+	js.Global().Call("requestAnimationFrame", sheet.rafWorkerCallback)
 }
 
-func (self *Sheet) rafWorker(args []js.Value) {
+func (sheet *Sheet) rafWorker(args []js.Value) {
 
-	if self.stopSignal {
+	if sheet.stopSignal {
 		// This will be the last rafWorker() call to be made
-		<-self.stopRequest
+		<-sheet.stopRequest
 		return
 	}
 
 	select {
-	case <-self.stopRequest:
+	case <-sheet.stopRequest:
 		// This will be the last rafWorker() call to be made
 		return
-	case request := <-self.paintQueue:
-		self.servePaintRequest(request)
-		js.Global().Call("requestAnimationFrame", self.rafWorkerCallback)
+	case request := <-sheet.paintQueue:
+		sheet.servePaintRequest(request)
+		js.Global().Call("requestAnimationFrame", sheet.rafWorkerCallback)
 	default:
 		time.Sleep(20 * time.Millisecond)
-		js.Global().Call("requestAnimationFrame", self.rafWorkerCallback)
+		js.Global().Call("requestAnimationFrame", sheet.rafWorkerCallback)
 	}
 }
