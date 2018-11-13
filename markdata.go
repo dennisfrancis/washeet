@@ -1,12 +1,12 @@
 package washeet
 
-func (self *MarkData) IsSingleCell() bool {
+func (markdata *MarkData) IsSingleCell() bool {
 
-	if self == nil {
+	if markdata == nil {
 		return true
 	}
 
-	if self.C1 == self.C2 && self.R1 == self.R2 {
+	if markdata.C1 == markdata.C2 && markdata.R1 == markdata.R2 {
 		return true
 	}
 
