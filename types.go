@@ -18,25 +18,43 @@ type sheetPaintRequest struct {
 	changeSheetStartRow bool
 }
 
+// TextAlignType is used to represent alignment of a cell's content.
 type TextAlignType byte
 
+// SheetDataProvider is the interface that needs to be implemented by the user of washeet
+// which is used to draw and populate the contents of the spreadsheet.
 type SheetDataProvider interface {
+	// GetDisplayString returns the content of the cell at (column,row) as a string.
 	GetDisplayString(column int64, row int64) string
+
+	// GetColumnWidth returns the width of "column" column in pixels.
 	GetColumnWidth(column int64) float64
+
+	// GetRowHeight returns the height of "row" row in pixels.
 	GetRowHeight(row int64) float64
-	// Trims given range to biggest range that does not have
-	// leading/trailing empty columns/rows.
-	// Returns false if given range is completely empty,
-	// else returns true.
+
+	// TrimToNonEmptyRange trims given range represented by
+	// { top-left cell (column = c1, row = r1), bottom-right cell (column = c2, row = r2)
+	// to the biggest sub-range that does not have any leading/trailing empty columns/rows.
+	// It returns false if given range is completely empty, else it returns true.
 	TrimToNonEmptyRange(c1, r1, c2, r2 *int64) bool
 }
 
+// SheetModelUpdater is the interface that needs to be implemented by the user of washeet
+// which is used to let communicate the changes in the contents of the spreadsheet..
 type SheetModelUpdater interface {
+	// SetColumnWidth updates the specified column's width in the spreadsheet model implementer.
 	SetColumnWidth(column int64, width float64)
+
+	// SetColumnWidth updates the specified rows's height in the spreadsheet model implementer.
 	SetRowHeight(row int64, height float64)
+
+	// SetCellContent updates the specified cell's content in the spreadsheet model implementer.
 	SetCellContent(row, column int64, content string)
 }
 
+// MarkData represents a selection range as
+// {top-left-cell(column = C1, row = R1), bottom-right-cell(column = C2, row = R2) }
 type MarkData struct {
 	C1 int64
 	R1 int64
@@ -44,13 +62,16 @@ type MarkData struct {
 	R2 int64
 }
 
+// CellCoords represents a cell's absolute coordinates.
 type CellCoords struct {
 	Col int64
 	Row int64
 }
 
+// MouseState represents the state of the mouse at a given time.
 type MouseState byte
 
+// SelectionState is used to store the start and current location of an on-going selection.
 type SelectionState struct {
 	refStartCell CellCoords
 	refCurrCell  CellCoords
@@ -70,6 +91,7 @@ type layoutData struct {
 	layoutFromStartRow bool
 }
 
+// Sheet represents the spreadsheet user-interface.
 type Sheet struct {
 	document          js.Value
 	window            js.Value
