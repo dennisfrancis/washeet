@@ -1,5 +1,7 @@
 package washeet
 
+// IsSingleCell returns true if the selection consists of just a single cell,
+// else returns false.
 func (markdata *MarkData) IsSingleCell() bool {
 
 	if markdata == nil {
