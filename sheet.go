@@ -7,6 +7,16 @@ import (
 	"time"
 )
 
+// NewSheet creates a spreadsheet ui with the given canvas element within a div container
+// The new spreadsheet ui will be drawn in the bounding rectangle ((startX, startY), (maxX, maxY))
+// where (startX, startY) is the pixel coordinates of top-left corner and
+// (maxX, maxY) is the pixel coordinates of bottom-right corner.
+// dSrc must be an implementation of SheetDataProvder which is used to draw the contents of the spreadsheet.NewSheet
+// dSink must be an implementation of SheetModelUpdater which is used to communicate back the changes in
+// contents of the spreadsheet due to user interaction.
+//
+// Note that the spreadsheet does not become visible after calling NewSheet. For that Start() method
+// needs to be called.
 func NewSheet(canvasElement, container *js.Value, startX float64, startY float64, maxX float64, maxY float64,
 	dSrc SheetDataProvider, dSink SheetModelUpdater) *Sheet {
 
@@ -54,6 +64,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	return ret
 }
 
+// Start starts the rendering of the spreadsheet and listens to user interactions.
 func (sheet *Sheet) Start() {
 
 	if sheet == nil {
@@ -64,6 +75,8 @@ func (sheet *Sheet) Start() {
 	sheet.launchRenderer()
 }
 
+// Stop stops all internal user-event handlers, stops the rendering loop and cleans up
+// the portion of canvas designated to Sheet created by NewSheet.
 func (sheet *Sheet) Stop() {
 
 	if sheet == nil || sheet.stopSignal {
