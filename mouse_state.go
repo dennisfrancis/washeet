@@ -1,29 +1,29 @@
 package washeet
 
-func (mouse *MouseState) isLeftDown() bool {
+func (mouse *mouseState) isLeftDown() bool {
 	return 0x01 == (*mouse & 0x01)
 }
 
-func (mouse *MouseState) isRightDown() bool {
+func (mouse *mouseState) isRightDown() bool {
 	return 0x02 == (*mouse & 0x02)
 }
 
-func (mouse *MouseState) setLeftDown() {
+func (mouse *mouseState) setLeftDown() {
 	(*mouse) |= 0x01
 }
 
-func (mouse *MouseState) setLeftUp() {
+func (mouse *mouseState) setLeftUp() {
 	(*mouse) &= 0xFE
 }
 
-func (mouse *MouseState) setRightDown() {
+func (mouse *mouseState) setRightDown() {
 	(*mouse) |= 0x02
 }
 
-func (mouse *MouseState) setRightUp() {
+func (mouse *mouseState) setRightUp() {
 	(*mouse) &= 0xFD
 }
 
-func defaultMouseState() MouseState {
-	return MouseState(0x00)
+func defaultMouseState() mouseState {
+	return mouseState(0x00)
 }

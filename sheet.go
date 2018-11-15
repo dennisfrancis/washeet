@@ -34,7 +34,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		rafLayoutData:      newLayoutData(startX, startY, maxX, maxY),
 		evtHndlrLayoutData: newLayoutData(startX, startY, maxX, maxY),
 		paintQueue:         make(chan *sheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
-		mark:               MarkData{0, 0, 0, 0},
+		mark:               markData{0, 0, 0, 0},
 		stopSignal:         false,
 		stopRequest:        make(chan struct{}),
 		mouseState:         defaultMouseState(),

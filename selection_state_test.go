@@ -9,18 +9,18 @@ func TestDefaultSelectionState(t *testing.T) {
 	state := defaultSelectionState()
 	start := state.getRefStartCell()
 	curr := state.getRefCurrCell()
-	if start.Col != 0 || start.Row != 0 || curr.Col != 0 || curr.Row != 0 {
+	if start.col != 0 || start.row != 0 || curr.col != 0 || curr.row != 0 {
 		t.Error("Wrong default selection state : ", state)
 	}
 }
 
 func TestSetRefStartCurrCell(t *testing.T) {
 
-	cases := []CellCoords{
-		CellCoords{0, 10},
-		CellCoords{10, 0},
-		CellCoords{5, 10},
-		CellCoords{10, 5},
+	cases := []cellCoords{
+		cellCoords{0, 10},
+		cellCoords{10, 0},
+		cellCoords{5, 10},
+		cellCoords{10, 5},
 	}
 	state := defaultSelectionState()
 	start := state.getRefStartCell()
@@ -28,18 +28,18 @@ func TestSetRefStartCurrCell(t *testing.T) {
 
 	for _, casStart := range cases {
 
-		state.setRefStartCell(casStart.Col, casStart.Row)
+		state.setRefStartCell(casStart.col, casStart.row)
 
 		for _, casCurr := range cases {
 
-			state.setRefCurrCell(casCurr.Col, casCurr.Row)
+			state.setRefCurrCell(casCurr.col, casCurr.row)
 
-			if start.Col != casStart.Col || start.Row != casStart.Row {
-				t.Errorf("Wrong start cell state : expected (%d, %d) but got (%d, %d)", casStart.Col, casStart.Row, start.Col, start.Row)
+			if start.col != casStart.col || start.row != casStart.row {
+				t.Errorf("Wrong start cell state : expected (%d, %d) but got (%d, %d)", casStart.col, casStart.row, start.col, start.row)
 			}
 
-			if curr.Col != casCurr.Col || curr.Row != casCurr.Row {
-				t.Errorf("Wrong curr cell state : expected (%d, %d) but got (%d, %d)", casCurr.Col, casCurr.Row, curr.Col, curr.Row)
+			if curr.col != casCurr.col || curr.row != casCurr.row {
+				t.Errorf("Wrong curr cell state : expected (%d, %d) but got (%d, %d)", casCurr.col, casCurr.row, curr.col, curr.row)
 			}
 		}
 	}

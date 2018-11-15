@@ -37,7 +37,7 @@ func (sheet *Sheet) servePaintWholeSheetRequest(col, row int64, changeSheetStart
 
 	sheet.servePaintCellRangeRequest(rafLD.startColumn, rafLD.startRow, rafLD.endColumn, rafLD.endRow)
 
-	sheet.servePaintSelectionRequest(sheet.mark.C1, sheet.mark.R1, sheet.mark.C2, sheet.mark.R2)
+	sheet.servePaintSelectionRequest(sheet.mark.c1, sheet.mark.r1, sheet.mark.c2, sheet.mark.r2)
 }
 
 func (sheet *Sheet) servePaintCellRangeRequest(colStart int64, rowStart int64, colEnd int64, rowEnd int64) {
@@ -63,39 +63,39 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 	rafLD := sheet.rafLayoutData
 
 	// Undo the current selection
-	if !(sheet.mark.C1 > rafLD.endColumn || sheet.mark.C2 < rafLD.startColumn || sheet.mark.R1 > rafLD.endRow || sheet.mark.R2 < rafLD.startRow) {
+	if !(sheet.mark.c1 > rafLD.endColumn || sheet.mark.c2 < rafLD.startColumn || sheet.mark.r1 > rafLD.endRow || sheet.mark.r2 < rafLD.startRow) {
 		// if current selection is in view at least partially
-		c1, r1, c2, r2 := sheet.trimRangeToView(rafLD, sheet.mark.C1, sheet.mark.R1, sheet.mark.C2, sheet.mark.R2)
+		c1, r1, c2, r2 := sheet.trimRangeToView(rafLD, sheet.mark.c1, sheet.mark.r1, sheet.mark.c2, sheet.mark.r2)
 		sheet.servePaintCellRangeRequest(c1, r1, c2, r2)
 	}
 
-	sheet.mark.C1, sheet.mark.C2 = colStart, colEnd
-	sheet.mark.R1, sheet.mark.R2 = rowStart, rowEnd
+	sheet.mark.c1, sheet.mark.c2 = colStart, colEnd
+	sheet.mark.r1, sheet.mark.r2 = rowStart, rowEnd
 
 	// check if mark is out of view
-	if sheet.mark.C1 > rafLD.endColumn || sheet.mark.C2 < rafLD.startColumn || sheet.mark.R1 > rafLD.endRow || sheet.mark.R2 < rafLD.startRow {
+	if sheet.mark.c1 > rafLD.endColumn || sheet.mark.c2 < rafLD.startColumn || sheet.mark.r1 > rafLD.endRow || sheet.mark.r2 < rafLD.startRow {
 		return
 	}
 
 	//fmt.Printf("mark = %+v\n", sheet.mark)
 
-	c1, r1, c2, r2 := sheet.trimRangeToView(rafLD, sheet.mark.C1, sheet.mark.R1, sheet.mark.C2, sheet.mark.R2)
+	c1, r1, c2, r2 := sheet.trimRangeToView(rafLD, sheet.mark.c1, sheet.mark.r1, sheet.mark.c2, sheet.mark.r2)
 	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := sheet.getIndicesAndRect(rafLD, c1, r1, c2, r2)
 
-	if !sheet.mark.IsSingleCell() {
+	if !sheet.mark.isSingleCell() {
 		strokeFillRect(&sheet.canvasContext, xlow, ylow, xhigh, yhigh, SELECTION_STROKE_COLOR, SELECTION_FILL_COLOR)
 	}
 
 	// Paint borders for the refStartCell if it is in view
 	// refStartCell need not be the first cell in the range
 	refStartCell := sheet.selectionState.getRefStartCell()
-	if refStartCell.Col <= c2 && refStartCell.Col >= c1 && refStartCell.Row <= r2 && refStartCell.Row >= r1 {
+	if refStartCell.col <= c2 && refStartCell.col >= c1 && refStartCell.row <= r2 && refStartCell.row >= r1 {
 
 		startCellColIdx, startCellRowIdx := ci1, ri1
-		if refStartCell.Col == c2 {
+		if refStartCell.col == c2 {
 			startCellColIdx = ci2
 		}
-		if refStartCell.Row == r2 {
+		if refStartCell.row == r2 {
 			startCellRowIdx = ri2
 		}
 		xStartCellBeg := math.Max(xlow, rafLD.colStartXCoords[startCellColIdx])
@@ -106,7 +106,7 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 		strokeNoFillRect(&sheet.canvasContext, xStartCellBeg+1, yStartCellBeg+1, xStartCellEnd-1, yStartCellEnd-1, CURSOR_STROKE_COLOR)
 	}
 
-	if c2 == sheet.mark.C2 && r2 == sheet.mark.R2 {
+	if c2 == sheet.mark.c2 && r2 == sheet.mark.r2 {
 		xLastCellEnd := rafLD.colStartXCoords[ci2+1]
 		yLastCellEnd := rafLD.rowStartYCoords[ri2+1]
 		if xLastCellEnd <= sheet.maxX && yLastCellEnd <= sheet.maxY {

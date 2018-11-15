@@ -25,7 +25,7 @@ func (sheet *Sheet) copySelectionToClipboard() {
 
 func (sheet *Sheet) getMarkedTextTSV() string {
 	//fmt.Println("Copy : ", sheet.mark)
-	c1, r1, c2, r2 := sheet.mark.C1, sheet.mark.R1, sheet.mark.C2, sheet.mark.R2
+	c1, r1, c2, r2 := sheet.mark.c1, sheet.mark.r1, sheet.mark.c2, sheet.mark.r2
 	found := sheet.dataSource.TrimToNonEmptyRange(&c1, &r1, &c2, &r2)
 	if !found {
 		return ""

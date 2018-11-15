@@ -110,13 +110,13 @@ func (sheet *Sheet) setupMousemoveHandler() {
 				refCurrCell := sheet.selectionState.getRefCurrCell()
 				col, row := layout.startColumn+xidx, layout.startRow+yidx
 
-				if refCurrCell.Col == col && refCurrCell.Row == row {
+				if refCurrCell.col == col && refCurrCell.row == row {
 					return
 				}
 
-				refCurrCell.Col, refCurrCell.Row = col, row
-				c1, c2 := getInOrder(refStartCell.Col, col)
-				r1, r2 := getInOrder(refStartCell.Row, row)
+				refCurrCell.col, refCurrCell.row = col, row
+				c1, c2 := getInOrder(refStartCell.col, col)
+				r1, r2 := getInOrder(refStartCell.row, row)
 				sheet.PaintCellRangeSelection(c1, r1, c2, r2)
 			}
 		} else {
@@ -202,9 +202,9 @@ func (sheet *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 
 	refStartCell := sheet.selectionState.getRefStartCell()
 	refCurrCell := sheet.selectionState.getRefCurrCell()
-	col, row := refStartCell.Col, refStartCell.Row
+	col, row := refStartCell.col, refStartCell.row
 	if shiftKeyDown {
-		col, row = refCurrCell.Col, refCurrCell.Row
+		col, row = refCurrCell.col, refCurrCell.row
 	}
 	// flag for selection paint
 	paintFlag := true
@@ -267,8 +267,8 @@ func (sheet *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 	if paintFlag {
 		if shiftKeyDown {
 			sheet.selectionState.setRefCurrCell(col, row)
-			c1, c2 := getInOrder(col, refStartCell.Col)
-			r1, r2 := getInOrder(row, refStartCell.Row)
+			c1, c2 := getInOrder(col, refStartCell.col)
+			r1, r2 := getInOrder(row, refStartCell.row)
 			sheet.PaintCellRangeSelection(c1, r1, c2, r2)
 		} else {
 			// Change both startCell and currCell references

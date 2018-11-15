@@ -53,28 +53,28 @@ type SheetModelUpdater interface {
 	SetCellContent(row, column int64, content string)
 }
 
-// MarkData represents a selection range as
+// markData represents a selection range as
 // {top-left-cell(column = C1, row = R1), bottom-right-cell(column = C2, row = R2) }
-type MarkData struct {
-	C1 int64
-	R1 int64
-	C2 int64
-	R2 int64
+type markData struct {
+	c1 int64
+	r1 int64
+	c2 int64
+	r2 int64
 }
 
-// CellCoords represents a cell's absolute coordinates.
-type CellCoords struct {
-	Col int64
-	Row int64
+// cellCoords represents a cell's absolute coordinates.
+type cellCoords struct {
+	col int64
+	row int64
 }
 
 // MouseState represents the state of the mouse at a given time.
-type MouseState byte
+type mouseState byte
 
 // SelectionState is used to store the start and current location of an on-going selection.
-type SelectionState struct {
-	refStartCell CellCoords
-	refCurrCell  CellCoords
+type selectionState struct {
+	refStartCell cellCoords
+	refCurrCell  cellCoords
 }
 
 type layoutData struct {
@@ -113,15 +113,15 @@ type Sheet struct {
 	paintQueue        chan *sheetPaintRequest
 	rafWorkerCallback js.Callback
 
-	mark MarkData
+	mark markData
 
 	stopSignal  bool
 	stopRequest chan struct{}
 
 	ehMutex sync.Mutex
 
-	mouseState     MouseState
-	selectionState SelectionState
+	mouseState     mouseState
+	selectionState selectionState
 
 	mousedownHandler js.Callback
 	mouseupHandler   js.Callback
