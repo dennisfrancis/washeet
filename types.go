@@ -134,3 +134,13 @@ type Sheet struct {
 }
 
 type cellMeasureGetter func(int64) float64
+
+type colorSettings struct {
+	gridLine        string
+	cellFill        string
+	cellStroke      string // fonts etc.
+	cursorStroke    string
+	headerFill      string
+	selectionStroke string
+	selectionFill   string
+}
