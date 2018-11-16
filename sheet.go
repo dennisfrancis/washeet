@@ -24,8 +24,8 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	maxX -= 1.0
 	maxY -= 1.0
 
-	if canvasElement == nil || startX+DEFAULT_CELL_WIDTH*10 >= maxX ||
-		startY+DEFAULT_CELL_HEIGHT*10 >= maxY {
+	if canvasElement == nil || startX+constDefaultCellWidth*10 >= maxX ||
+		startY+constDefaultCellHeight*10 >= maxY {
 		return nil
 	}
 
@@ -43,7 +43,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		dataSink:           dSink,
 		rafLayoutData:      newLayoutData(startX, startY, maxX, maxY),
 		evtHndlrLayoutData: newLayoutData(startX, startY, maxX, maxY),
-		paintQueue:         make(chan *sheetPaintRequest, SHEET_PAINT_QUEUE_LENGTH),
+		paintQueue:         make(chan *sheetPaintRequest, constSheetPaintQueueLength),
 		mark:               markData{0, 0, 0, 0},
 		stopSignal:         false,
 		stopRequest:        make(chan struct{}),

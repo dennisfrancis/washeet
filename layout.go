@@ -15,8 +15,8 @@ func newLayoutData(originX, originY, maxX, maxY float64) *layoutData {
 		startRow:           int64(0),
 		endColumn:          int64(0),
 		endRow:             int64(0),
-		colStartXCoords:    make([]float64, 0, 1+int(math.Ceil((maxX-originX+1)/DEFAULT_CELL_WIDTH))),
-		rowStartYCoords:    make([]float64, 0, 1+int(math.Ceil((maxY-originY+1)/DEFAULT_CELL_HEIGHT))),
+		colStartXCoords:    make([]float64, 0, 1+int(math.Ceil((maxX-originX+1)/constDefaultCellWidth))),
+		rowStartYCoords:    make([]float64, 0, 1+int(math.Ceil((maxY-originY+1)/constDefaultCellHeight))),
 		layoutFromStartCol: true,
 		layoutFromStartRow: true,
 	}
@@ -50,7 +50,7 @@ func (sheet *Sheet) computeLayout(layout *layoutData, col, row int64, changeShee
 
 	// Start of actual top left cell to be drawn after accounting
 	// for the row/col-headers
-	minX, minY := sheet.origX+DEFAULT_CELL_WIDTH, sheet.origY+DEFAULT_CELL_HEIGHT
+	minX, minY := sheet.origX+constDefaultCellWidth, sheet.origY+constDefaultCellHeight
 
 	if layout.layoutFromStartCol {
 		layout.endColumn, layout.colStartXCoords = computeCellsCoordsRefStart(
@@ -58,7 +58,7 @@ func (sheet *Sheet) computeLayout(layout *layoutData, col, row int64, changeShee
 			sheet.maxX,
 			layout.startColumn,
 			sheet.dataSource.GetColumnWidth,
-			DEFAULT_CELL_WIDTH,
+			constDefaultCellWidth,
 			layout.colStartXCoords,
 		)
 	} else {
@@ -67,7 +67,7 @@ func (sheet *Sheet) computeLayout(layout *layoutData, col, row int64, changeShee
 			sheet.maxX,
 			layout.endColumn,
 			sheet.dataSource.GetColumnWidth,
-			DEFAULT_CELL_WIDTH,
+			constDefaultCellWidth,
 			layout.colStartXCoords,
 		)
 	}
@@ -78,7 +78,7 @@ func (sheet *Sheet) computeLayout(layout *layoutData, col, row int64, changeShee
 			sheet.maxY,
 			layout.startRow,
 			sheet.dataSource.GetRowHeight,
-			DEFAULT_CELL_HEIGHT,
+			constDefaultCellHeight,
 			layout.rowStartYCoords,
 		)
 	} else {
@@ -87,7 +87,7 @@ func (sheet *Sheet) computeLayout(layout *layoutData, col, row int64, changeShee
 			sheet.maxY,
 			layout.endRow,
 			sheet.dataSource.GetRowHeight,
-			DEFAULT_CELL_HEIGHT,
+			constDefaultCellHeight,
 			layout.rowStartYCoords,
 		)
 	}

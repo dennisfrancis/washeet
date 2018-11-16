@@ -1,13 +1,13 @@
 package washeet
 
 const (
-	MAXROWCOUNT              int64   = 1048576
-	MAXROW                   int64   = MAXROWCOUNT - 1
-	MAXCOLCOUNT              int64   = 16384
-	MAXCOL                   int64   = MAXCOLCOUNT - 1
-	DEFAULT_CELL_WIDTH       float64 = 90.0
-	DEFAULT_CELL_HEIGHT      float64 = 25.0
-	SHEET_PAINT_QUEUE_LENGTH int     = 50
+	constMaxRowCount           int64   = 1048576
+	constMaxRow                int64   = constMaxRowCount - 1
+	constMaxColCount           int64   = 16384
+	constMaxCol                int64   = constMaxColCount - 1
+	constDefaultCellWidth      float64 = 90.0
+	constDefaultCellHeight     float64 = 25.0
+	constSheetPaintQueueLength int     = 50
 
 	GRID_LINE_COLOR           string = "rgba(200, 200, 200, 1.0)"
 	CELL_DEFAULT_FILL_COLOR   string = "rgba(255, 255, 255, 1.0)"

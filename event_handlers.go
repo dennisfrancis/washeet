@@ -216,7 +216,7 @@ func (sheet *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 			col--
 		}
 	case 39: // Right
-		if col == MAXCOL {
+		if col == constMaxCol {
 			paintFlag = false
 		} else {
 			col++
@@ -228,7 +228,7 @@ func (sheet *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 			row--
 		}
 	case 40: // Down
-		if row == MAXROW {
+		if row == constMaxRow {
 			paintFlag = false
 		} else {
 			row++

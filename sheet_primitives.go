@@ -63,26 +63,26 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 	numRowsInView := layout.endRow - layout.startRow + 1
 
 	// column header outline
-	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX, sheet.origY+DEFAULT_CELL_HEIGHT, GRID_LINE_COLOR, HEADER_FILL_COLOR)
+	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX, sheet.origY+constDefaultCellHeight, GRID_LINE_COLOR, HEADER_FILL_COLOR)
 	// draw column header separators
-	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[0:numColsInView], sheet.origY, sheet.origY+DEFAULT_CELL_HEIGHT, GRID_LINE_COLOR)
+	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[0:numColsInView], sheet.origY, sheet.origY+constDefaultCellHeight, GRID_LINE_COLOR)
 	// draw col labels (center aligned)
 	setFillColor(&sheet.canvasContext, CELL_DEFAULT_STROKE_COLOR)
 	for nCol, nColIdx := layout.startColumn, int64(0); nCol <= layout.endColumn; nCol, nColIdx = nCol+1, nColIdx+1 {
 		drawText(&sheet.canvasContext, layout.colStartXCoords[nColIdx], sheet.origY,
-			layout.colStartXCoords[nColIdx+1], sheet.origY+DEFAULT_CELL_HEIGHT,
+			layout.colStartXCoords[nColIdx+1], sheet.origY+constDefaultCellHeight,
 			sheet.maxX, sheet.maxY,
 			col2ColLabel(nCol), AlignCenter)
 	}
 	// row header outline
-	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.origX+DEFAULT_CELL_WIDTH, sheet.maxY, GRID_LINE_COLOR, HEADER_FILL_COLOR)
+	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.origX+constDefaultCellWidth, sheet.maxY, GRID_LINE_COLOR, HEADER_FILL_COLOR)
 	// draw row header separators
-	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[0:numRowsInView], sheet.origX, sheet.origX+DEFAULT_CELL_WIDTH, GRID_LINE_COLOR)
+	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[0:numRowsInView], sheet.origX, sheet.origX+constDefaultCellWidth, GRID_LINE_COLOR)
 	// draw row labels (center aligned)
 	setFillColor(&sheet.canvasContext, CELL_DEFAULT_STROKE_COLOR)
 	for nRow, nRowIdx := layout.startRow, int64(0); nRow <= layout.endRow; nRow, nRowIdx = nRow+1, nRowIdx+1 {
 		drawText(&sheet.canvasContext, sheet.origX, layout.rowStartYCoords[nRowIdx],
-			sheet.origX+DEFAULT_CELL_WIDTH, layout.rowStartYCoords[nRowIdx+1],
+			sheet.origX+constDefaultCellWidth, layout.rowStartYCoords[nRowIdx+1],
 			sheet.maxX, sheet.maxY,
 			row2RowLabel(nRow), AlignCenter)
 	}
