@@ -56,7 +56,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	setLineWidth(&ret.canvasContext, 1.0)
 
 	ret.setupClipboardTextArea()
-	ret.PaintWholeSheet(ret.evtHndlrLayoutData.startColumn, ret.evtHndlrLayoutData.startRow,
+	ret.paintWholeSheet(ret.evtHndlrLayoutData.startColumn, ret.evtHndlrLayoutData.startRow,
 		ret.evtHndlrLayoutData.layoutFromStartCol, ret.evtHndlrLayoutData.layoutFromStartRow)
 	ret.setupMouseHandlers()
 	ret.setupKeyboardHandlers()
@@ -95,91 +95,4 @@ func (sheet *Sheet) Stop() {
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
 	noStrokeFillRectNoAdjust(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX+1.0, sheet.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
-}
-
-// if col/row = -1 no changes are made before whole-redraw
-// changeSheetStartCol/changeSheetStartRow is also used to set sheet.layoutFromStartCol/sheet.layoutFromStartRow
-func (sheet *Sheet) PaintWholeSheet(col, row int64, changeSheetStartCol, changeSheetStartRow bool) bool {
-	req := &sheetPaintRequest{
-		kind:                sheetPaintWholeSheet,
-		col:                 col,
-		row:                 row,
-		changeSheetStartCol: changeSheetStartCol,
-		changeSheetStartRow: changeSheetStartRow,
-	}
-
-	if sheet.addPaintRequest(req) {
-		// Layout will be partly/fully computed in RAF thread, so independently compute that here too.
-		sheet.computeLayout(sheet.evtHndlrLayoutData, col, row, changeSheetStartCol, changeSheetStartRow)
-		return true
-	}
-
-	return false
-}
-
-func (sheet *Sheet) PaintCell(col int64, row int64) bool {
-
-	if sheet == nil {
-		return false
-	}
-
-	layout := sheet.evtHndlrLayoutData
-
-	// optimization : don't fill the queue with these
-	// if we know they are not going to be painted.
-	if col < layout.startColumn || col > layout.endColumn ||
-		row < layout.startRow || row > layout.endRow {
-		return false
-	}
-
-	return sheet.addPaintRequest(&sheetPaintRequest{
-		kind:   sheetPaintCell,
-		col:    col,
-		row:    row,
-		endCol: col,
-		endRow: row,
-	})
-}
-
-func (sheet *Sheet) PaintCellRange(colStart int64, rowStart int64, colEnd int64, rowEnd int64) bool {
-
-	if sheet == nil {
-		return false
-	}
-
-	return sheet.addPaintRequest(&sheetPaintRequest{
-		kind:   sheetPaintCellRange,
-		col:    colStart,
-		row:    rowStart,
-		endCol: colEnd,
-		endRow: rowEnd,
-	})
-}
-
-func (sheet *Sheet) PaintCellSelection(col, row int64) bool {
-	if sheet == nil {
-		return false
-	}
-
-	return sheet.addPaintRequest(&sheetPaintRequest{
-		kind:   sheetPaintSelection,
-		col:    col,
-		row:    row,
-		endCol: col,
-		endRow: row,
-	})
-}
-
-func (sheet *Sheet) PaintCellRangeSelection(colStart, rowStart, colEnd, rowEnd int64) bool {
-	if sheet == nil {
-		return false
-	}
-
-	return sheet.addPaintRequest(&sheetPaintRequest{
-		kind:   sheetPaintSelection,
-		col:    colStart,
-		row:    rowStart,
-		endCol: colEnd,
-		endRow: rowEnd,
-	})
 }
