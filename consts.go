@@ -9,7 +9,6 @@ const (
 	constDefaultCellHeight     float64 = 25.0
 	constSheetPaintQueueLength int     = 50
 
-	CELL_DEFAULT_FILL_COLOR   string = "rgba(255, 255, 255, 1.0)"
 	CELL_DEFAULT_STROKE_COLOR string = "rgba(0, 0, 0, 1.0)" // fonts etc.
 	CURSOR_STROKE_COLOR       string = "rgba(0, 0, 0, 1.0)"
 	HEADER_FILL_COLOR         string = "rgba(240, 240, 240, 1.0)"

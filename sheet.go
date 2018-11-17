@@ -94,5 +94,5 @@ func (sheet *Sheet) Stop() {
 
 	// clear the widget area.
 	// HACK : maxX + 1.0, maxY + 1.0 is the actual limit
-	noStrokeFillRectNoAdjust(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX+1.0, sheet.maxY+1.0, CELL_DEFAULT_FILL_COLOR)
+	noStrokeFillRectNoAdjust(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX+1.0, sheet.maxY+1.0, defaultColors.cellFill)
 }

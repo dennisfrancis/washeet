@@ -98,7 +98,7 @@ func (sheet *Sheet) drawRange(layout *layoutData, c1, r1, c2, r2 int64) {
 	startXIdx, endXIdx, startYIdx, endYIdx, xlow, xhigh, ylow, yhigh := sheet.getIndicesAndRect(layout, c1, r1, c2, r2)
 
 	// cleanup the cell-range area
-	noStrokeFillRect(&sheet.canvasContext, xlow, ylow, xhigh, yhigh, CELL_DEFAULT_FILL_COLOR)
+	noStrokeFillRect(&sheet.canvasContext, xlow, ylow, xhigh, yhigh, defaultColors.cellFill)
 
 	// draw N vertical lines where N is number of columns in the range
 	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[startXIdx:endXIdx+1], ylow, yhigh, defaultColors.gridLine)
