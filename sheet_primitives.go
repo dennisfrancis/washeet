@@ -63,9 +63,9 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 	numRowsInView := layout.endRow - layout.startRow + 1
 
 	// column header outline
-	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX, sheet.origY+constDefaultCellHeight, GRID_LINE_COLOR, HEADER_FILL_COLOR)
+	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX, sheet.origY+constDefaultCellHeight, defaultColors.gridLine, HEADER_FILL_COLOR)
 	// draw column header separators
-	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[0:numColsInView], sheet.origY, sheet.origY+constDefaultCellHeight, GRID_LINE_COLOR)
+	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[0:numColsInView], sheet.origY, sheet.origY+constDefaultCellHeight, defaultColors.gridLine)
 	// draw col labels (center aligned)
 	setFillColor(&sheet.canvasContext, CELL_DEFAULT_STROKE_COLOR)
 	for nCol, nColIdx := layout.startColumn, int64(0); nCol <= layout.endColumn; nCol, nColIdx = nCol+1, nColIdx+1 {
@@ -75,9 +75,9 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 			col2ColLabel(nCol), AlignCenter)
 	}
 	// row header outline
-	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.origX+constDefaultCellWidth, sheet.maxY, GRID_LINE_COLOR, HEADER_FILL_COLOR)
+	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.origX+constDefaultCellWidth, sheet.maxY, defaultColors.gridLine, HEADER_FILL_COLOR)
 	// draw row header separators
-	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[0:numRowsInView], sheet.origX, sheet.origX+constDefaultCellWidth, GRID_LINE_COLOR)
+	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[0:numRowsInView], sheet.origX, sheet.origX+constDefaultCellWidth, defaultColors.gridLine)
 	// draw row labels (center aligned)
 	setFillColor(&sheet.canvasContext, CELL_DEFAULT_STROKE_COLOR)
 	for nRow, nRowIdx := layout.startRow, int64(0); nRow <= layout.endRow; nRow, nRowIdx = nRow+1, nRowIdx+1 {
@@ -101,16 +101,16 @@ func (sheet *Sheet) drawRange(layout *layoutData, c1, r1, c2, r2 int64) {
 	noStrokeFillRect(&sheet.canvasContext, xlow, ylow, xhigh, yhigh, CELL_DEFAULT_FILL_COLOR)
 
 	// draw N vertical lines where N is number of columns in the range
-	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[startXIdx:endXIdx+1], ylow, yhigh, GRID_LINE_COLOR)
+	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[startXIdx:endXIdx+1], ylow, yhigh, defaultColors.gridLine)
 
 	// draw last vertical line to show end of last column
-	drawVertLine(&sheet.canvasContext, ylow, yhigh, xhigh, GRID_LINE_COLOR)
+	drawVertLine(&sheet.canvasContext, ylow, yhigh, xhigh, defaultColors.gridLine)
 
 	// draw N horizontal lines where N is number of rows in the range
-	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[startYIdx:endYIdx+1], xlow, xhigh, GRID_LINE_COLOR)
+	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[startYIdx:endYIdx+1], xlow, xhigh, defaultColors.gridLine)
 
 	// draw last horizontal line to show end of last row
-	drawHorizLine(&sheet.canvasContext, xlow, xhigh, yhigh, GRID_LINE_COLOR)
+	drawHorizLine(&sheet.canvasContext, xlow, xhigh, yhigh, defaultColors.gridLine)
 
 	sheet.drawCellRangeContents(layout, c1, r1, c2, r2)
 
