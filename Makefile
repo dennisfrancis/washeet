@@ -17,7 +17,7 @@ default: build check
 
 check:
 	@echo -e "$(CHECKSTART)"
-	@GOOS=js GOARCH=wasm go test -exec="${HOME}/devel/go/misc/wasm/go_js_wasm_exec" \
+	@GOOS=js GOARCH=wasm go test -exec="${GOROOT}/misc/wasm/go_js_wasm_exec" \
 	 && (echo -e "$(CHECKSUCCESS)") || (echo -e "$(CHECKFAILED)" && false)
 
 build:
