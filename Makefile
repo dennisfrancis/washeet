@@ -8,12 +8,22 @@ CHECKSTART   = $(CHECKTAG) $(BLUEFG)START$(DEFFG)
 CHECKSUCCESS = $(CHECKTAG) $(GREENFG)SUCCESS$(DEFFG)
 CHECKFAILED  = $(CHECKTAG) $(REDFG)FAILED$(DEFFG)
 
-BUILDTAG     = [$(BLUEFG)BUILD$(DEFFG)]
+BUILDTAG     = [$(BLUEFG)BUILDPKG$(DEFFG)]
 BUILDSTART   = $(BUILDTAG) $(BLUEFG)START$(DEFFG)
 BUILDSUCCESS = $(BUILDTAG) $(GREENFG)SUCCESS$(DEFFG)
 BUILDFAILED  = $(BUILDTAG) $(REDFG)FAILED$(DEFFG)
 
-default: build check
+DEMOTAG     = [$(BLUEFG)DEMOBUILD$(DEFFG)]
+DEMOSTART   = $(DEMOTAG) $(BLUEFG)START$(DEFFG)
+DEMOSUCCESS = $(DEMOTAG) $(GREENFG)SUCCESS$(DEFFG)
+DEMOFAILED  = $(DEMOTAG) $(REDFG)FAILED$(DEFFG)
+
+CLEANTAG     = [$(BLUEFG)CLEAN$(DEFFG)]
+CLEANSUCCESS = $(CLEANTAG) $(GREENFG)SUCCESS$(DEFFG)
+CLEANFAILED  = $(CLEANTAG) $(REDFG)FAILED$(DEFFG)
+
+
+default: build check demo
 
 check:
 	@echo -e "$(CHECKSTART)"
@@ -23,3 +33,13 @@ check:
 build:
 	@echo -e "$(BUILDSTART)"
 	@GOOS=js GOARCH=wasm go build && (echo -e "$(BUILDSUCCESS)") || (echo -e "$(BUILDFAILED)" && false)
+
+demo/main.wasm: demo/main.go *.go
+	@echo -e "$(DEMOSTART)"
+	@GOOS=js GOARCH=wasm go build -o demo/main.wasm demo/main.go \
+	      && (echo -e "$(DEMOSUCCESS)") || (echo -e "$(DEMOFAILED)" && false)
+
+demo: demo/main.wasm
+
+clean:
+	@rm -f demo/main.wasm && (echo -e "$(CLEANSUCCESS)") || (echo -e "$(CLEANFAILED)" && false)
