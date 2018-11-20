@@ -63,7 +63,8 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 	numRowsInView := layout.endRow - layout.startRow + 1
 
 	// column header outline
-	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX, sheet.origY+constDefaultCellHeight, defaultColors.gridLine, HEADER_FILL_COLOR)
+	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.maxX,
+		sheet.origY+constDefaultCellHeight, defaultColors.gridLine, defaultColors.headerFill)
 	// draw column header separators
 	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[0:numColsInView], sheet.origY, sheet.origY+constDefaultCellHeight, defaultColors.gridLine)
 	// draw col labels (center aligned)
@@ -75,7 +76,8 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 			col2ColLabel(nCol), AlignCenter)
 	}
 	// row header outline
-	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY, sheet.origX+constDefaultCellWidth, sheet.maxY, defaultColors.gridLine, HEADER_FILL_COLOR)
+	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY,
+		sheet.origX+constDefaultCellWidth, sheet.maxY, defaultColors.gridLine, defaultColors.headerFill)
 	// draw row header separators
 	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[0:numRowsInView], sheet.origX, sheet.origX+constDefaultCellWidth, defaultColors.gridLine)
 	// draw row labels (center aligned)
