@@ -9,7 +9,7 @@ Washeet is a spreadsheet web ui package written in golang. The project aims to p
 * copying cell/cell-range contents to clipboard.
 
 ## API documentation
-Things are still in flux, but see https://godoc.org/github.com/dennisfrancis/washeet for the current form.
+Things are still in flux, but see [godoc](https://godoc.org/github.com/dennisfrancis/washeet) for the current form.
 
 ## Is there a demo/example ?
 Yes, there is one in the `demo` sub-directory. See below for how to setup the demo. You must have installed Go version >= 1.11 and "GNU make" to do this. Technically you don't need "make" but it would certainly make things easier if you do.
@@ -25,7 +25,7 @@ $ cd $GOPATH/src/github.com/dennisfrancis/washeet
 $ make
 ```
 
-Now run an http(s) server on demo sub-directory. Any such server would do. You could try [caddy](https://caddyserver.com/download) as it is easy to setup without writing a single line of code.
+Now run an https server on demo sub-directory. Any https server would do. If you use just http, the clipboard api wont work. You could try [caddy](https://caddyserver.com/download) as it is easy to setup without writing a single line of code.
 ```
 $ cd demo
 $ caddy  # assuming you chose to use caddy https server.
