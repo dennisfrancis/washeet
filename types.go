@@ -95,6 +95,7 @@ type layoutData struct {
 type Sheet struct {
 	document          js.Value
 	window            js.Value
+	navigator         js.Value
 	container         *js.Value
 	canvasElement     *js.Value
 	canvasContext     js.Value

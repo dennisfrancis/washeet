@@ -32,6 +32,7 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	ret := &Sheet{
 		document:           js.Global().Get("document"),
 		window:             js.Global().Get("window"),
+		navigator:          js.Global().Get("navigator"),
 		container:          container,
 		canvasElement:      canvasElement,
 		canvasContext:      canvasElement.Call("getContext", "2d"),

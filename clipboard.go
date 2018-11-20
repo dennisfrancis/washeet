@@ -12,6 +12,14 @@ func (sheet *Sheet) setupClipboardTextArea() {
 }
 
 func (sheet *Sheet) copySelectionToClipboard() {
+	sheet.copySelectionToClipboardAsync()
+}
+
+func (sheet *Sheet) copySelectionToClipboardAsync() {
+	sheet.navigator.Get("clipboard").Call("writeText", sheet.getMarkedTextTSV())
+}
+
+func (sheet *Sheet) copySelectionToClipboardSync() {
 	//fmt.Println("copySelectionToClipboard()")
 	x, y := sheet.window.Get("scrollX").Int(), sheet.window.Get("scrollY").Int()
 	sheet.clipboardTextArea.Set("value", sheet.getMarkedTextTSV())
