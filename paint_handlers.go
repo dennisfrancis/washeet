@@ -102,15 +102,18 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 		yStartCellBeg := math.Max(ylow, rafLD.rowStartYCoords[startCellRowIdx])
 		xStartCellEnd := math.Min(rafLD.colStartXCoords[startCellColIdx+1], sheet.maxX)
 		yStartCellEnd := math.Min(rafLD.rowStartYCoords[startCellRowIdx+1], sheet.maxY)
-		strokeNoFillRect(&sheet.canvasContext, xStartCellBeg, yStartCellBeg, xStartCellEnd, yStartCellEnd, CURSOR_STROKE_COLOR)
-		strokeNoFillRect(&sheet.canvasContext, xStartCellBeg+1, yStartCellBeg+1, xStartCellEnd-1, yStartCellEnd-1, CURSOR_STROKE_COLOR)
+		strokeNoFillRect(&sheet.canvasContext, xStartCellBeg, yStartCellBeg, xStartCellEnd,
+			yStartCellEnd, defaultColors.cursorStroke)
+		strokeNoFillRect(&sheet.canvasContext, xStartCellBeg+1, yStartCellBeg+1, xStartCellEnd-1,
+			yStartCellEnd-1, defaultColors.cursorStroke)
 	}
 
 	if c2 == sheet.mark.c2 && r2 == sheet.mark.r2 {
 		xLastCellEnd := rafLD.colStartXCoords[ci2+1]
 		yLastCellEnd := rafLD.rowStartYCoords[ri2+1]
 		if xLastCellEnd <= sheet.maxX && yLastCellEnd <= sheet.maxY {
-			strokeFillRect(&sheet.canvasContext, xLastCellEnd-6, yLastCellEnd-6, xLastCellEnd, yLastCellEnd, CURSOR_STROKE_COLOR, CURSOR_STROKE_COLOR)
+			strokeFillRect(&sheet.canvasContext, xLastCellEnd-6, yLastCellEnd-6, xLastCellEnd,
+				yLastCellEnd, defaultColors.cursorStroke, defaultColors.cursorStroke)
 		}
 	}
 }
