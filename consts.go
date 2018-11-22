@@ -8,8 +8,6 @@ const (
 	constDefaultCellWidth      float64 = 90.0
 	constDefaultCellHeight     float64 = 25.0
 	constSheetPaintQueueLength int     = 50
-
-	SELECTION_FILL_COLOR string = "rgba(100, 156, 244, 0.2)"
 )
 
 const (

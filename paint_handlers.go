@@ -83,7 +83,8 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := sheet.getIndicesAndRect(rafLD, c1, r1, c2, r2)
 
 	if !sheet.mark.isSingleCell() {
-		strokeFillRect(&sheet.canvasContext, xlow, ylow, xhigh, yhigh, defaultColors.selectionStroke, SELECTION_FILL_COLOR)
+		strokeFillRect(&sheet.canvasContext, xlow, ylow, xhigh, yhigh,
+			defaultColors.selectionStroke, defaultColors.selectionFill)
 	}
 
 	// Paint borders for the refStartCell if it is in view
