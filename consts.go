@@ -18,7 +18,10 @@ const (
 )
 
 const (
+	// AlignLeft indicates left-alignment of cell-content.
 	AlignLeft TextAlignType = iota
+	// AlignCenter indicates center-alignment of cell-content.
 	AlignCenter
+	// AlignRight indicates right-alignment of cell-content.
 	AlignRight
 )
