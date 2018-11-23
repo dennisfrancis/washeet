@@ -11,7 +11,7 @@ import (
 // The new spreadsheet ui will be drawn in the bounding rectangle ((startX, startY), (maxX, maxY))
 // where (startX, startY) is the pixel coordinates of top-left corner and
 // (maxX, maxY) is the pixel coordinates of bottom-right corner.
-// dSrc must be an implementation of SheetDataProvder which is used to draw the contents of the spreadsheet.NewSheet
+// dSrc must be an implementation of SheetDataProvder which is used to draw the contents of the spreadsheet.
 // dSink must be an implementation of SheetModelUpdater which is used to communicate back the changes in
 // contents of the spreadsheet due to user interaction.
 //
