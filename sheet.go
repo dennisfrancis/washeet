@@ -56,7 +56,6 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	setFont(&ret.canvasContext, "14px serif")
 	setLineWidth(&ret.canvasContext, 1.0)
 
-	ret.setupClipboardTextArea()
 	ret.paintWholeSheet(ret.evtHndlrLayoutData.startColumn, ret.evtHndlrLayoutData.startRow,
 		ret.evtHndlrLayoutData.layoutFromStartCol, ret.evtHndlrLayoutData.layoutFromStartRow)
 	ret.setupMouseHandlers()
