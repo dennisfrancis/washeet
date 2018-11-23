@@ -22,7 +22,7 @@ $ go get -u github.com/dennisfrancis/washeet
 $ cd $GOPATH/src/github.com/dennisfrancis/washeet
 
 # Build the demo
-$ make
+$ make demo
 ```
 
 Now run an https server on demo sub-directory. Any https server would do. If you use just http, the clipboard api wont work. You could try [caddy](https://caddyserver.com/download) as it is easy to setup without writing a single line of code.
