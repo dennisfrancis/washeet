@@ -1,7 +1,6 @@
 package washeet
 
 import (
-	//"fmt"
 	"syscall/js"
 	"time"
 )
