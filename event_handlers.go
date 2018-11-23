@@ -46,9 +46,10 @@ func (sheet *Sheet) setupMousedownHandler() {
 			}
 			sheet.mouseState.setLeftDown()
 			col, row := layout.startColumn+xi, layout.startRow+yi
-			sheet.selectionState.setRefStartCell(col, row)
-			sheet.selectionState.setRefCurrCell(col, row)
-			sheet.paintCellSelection(col, row)
+			if sheet.paintCellSelection(col, row) {
+				sheet.selectionState.setRefStartCell(col, row)
+				sheet.selectionState.setRefCurrCell(col, row)
+			}
 		} else if buttonCode == 2 {
 			sheet.mouseState.setRightDown()
 		}
@@ -114,10 +115,12 @@ func (sheet *Sheet) setupMousemoveHandler() {
 					return
 				}
 
-				refCurrCell.col, refCurrCell.row = col, row
 				c1, c2 := getInOrder(refStartCell.col, col)
 				r1, r2 := getInOrder(refStartCell.row, row)
-				sheet.paintCellRangeSelection(c1, r1, c2, r2)
+				if sheet.paintCellRangeSelection(c1, r1, c2, r2) {
+					refCurrCell.col, refCurrCell.row = col, row
+				}
+
 			}
 		} else {
 			// for headers
@@ -266,15 +269,17 @@ func (sheet *Sheet) arrowKeyHandler(keycode int, shiftKeyDown bool) {
 
 	if paintFlag {
 		if shiftKeyDown {
-			sheet.selectionState.setRefCurrCell(col, row)
 			c1, c2 := getInOrder(col, refStartCell.col)
 			r1, r2 := getInOrder(row, refStartCell.row)
-			sheet.paintCellRangeSelection(c1, r1, c2, r2)
+			if sheet.paintCellRangeSelection(c1, r1, c2, r2) {
+				sheet.selectionState.setRefCurrCell(col, row)
+			}
 		} else {
-			// Change both startCell and currCell references
-			sheet.selectionState.setRefStartCell(col, row)
-			sheet.selectionState.setRefCurrCell(col, row)
-			sheet.paintCellSelection(col, row)
+			if sheet.paintCellSelection(col, row) {
+				// Change both startCell and currCell references
+				sheet.selectionState.setRefStartCell(col, row)
+				sheet.selectionState.setRefCurrCell(col, row)
+			}
 		}
 	}
 }
