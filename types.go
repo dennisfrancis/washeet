@@ -68,10 +68,10 @@ type cellCoords struct {
 	row int64
 }
 
-// MouseState represents the state of the mouse at a given time.
+// mouseState represents the state of the mouse at a given time.
 type mouseState byte
 
-// SelectionState is used to store the start and current location of an on-going selection.
+// selectionState is used to store the start and current location of an on-going selection.
 type selectionState struct {
 	refStartCell cellCoords
 	refCurrCell  cellCoords
