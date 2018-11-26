@@ -1,22 +1,46 @@
 package washeet
 
+import "fmt"
+
 // NewColor returns a pointer to a new Color object with "red", "blue" and "green" components.
-func NewColor(red, green, blue byte) *Color {
-	return &Color{
-		red:   red,
-		green: green,
-		blue:  blue,
-		alpha: 255,
-	}
+func NewColor(red, green, blue uint8) *Color {
+	color := Color(uint32(red)<<24 | uint32(green)<<16 | uint32(blue)<<8 | uint32(255))
+	return &color
 }
 
-func newRGBAColor(red, green, blue, alpha byte) *Color {
-	return &Color{
-		red:   red,
-		green: green,
-		blue:  blue,
-		alpha: alpha,
-	}
+func newRGBAColor(red, green, blue, alpha uint8) *Color {
+	color := Color(uint32(red)<<24 | uint32(green)<<16 | uint32(blue)<<8 | uint32(alpha))
+	return &color
+}
+
+// Red returns the red component of Color.
+func (color *Color) Red() uint8 {
+	return uint8(*color >> 24)
+}
+
+// Green returns the green component of Color.
+func (color *Color) Green() uint8 {
+	return uint8((*color >> 16) & Color(0xff))
+}
+
+// Blue returns the blue component of Color.
+func (color *Color) Blue() uint8 {
+	return uint8((*color >> 8) & Color(0xff))
+}
+
+// alpha returns the alpha component of Color.
+func (color *Color) alpha() float32 {
+	return float32(*color&Color(0xff)) / float32(255.0)
+}
+
+func (color *Color) toString() string {
+	return fmt.Sprintf(
+		"rgba(%d, %d, %d, %.1f)",
+		color.Red(),
+		color.Green(),
+		color.Blue(),
+		color.alpha(),
+	)
 }
 
 var (
