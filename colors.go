@@ -1,5 +1,24 @@
 package washeet
 
+// NewColor returns a pointer to a new Color object with "red", "blue" and "green" components.
+func NewColor(red, green, blue byte) *Color {
+	return &Color{
+		red:   red,
+		green: green,
+		blue:  blue,
+		alpha: 255,
+	}
+}
+
+func newRGBAColor(red, green, blue, alpha byte) *Color {
+	return &Color{
+		red:   red,
+		green: green,
+		blue:  blue,
+		alpha: alpha,
+	}
+}
+
 var (
 	defaultColors = colorSettings{
 		gridLine:        "rgba(200, 200, 200, 1.0)",

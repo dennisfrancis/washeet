@@ -136,6 +136,14 @@ type Sheet struct {
 
 type cellMeasureGetter func(int64) float64
 
+// Color represents a color.
+type Color struct {
+	red   byte
+	green byte
+	blue  byte
+	alpha byte
+}
+
 type colorSettings struct {
 	gridLine        string
 	cellFill        string
