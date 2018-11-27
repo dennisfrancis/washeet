@@ -7,41 +7,41 @@ import (
 
 var path2dCtor = js.Global().Get("Path2D")
 
-func drawVertLines(canvasContext *js.Value, xcoords []float64, ylow, yhigh float64, color string) {
+func drawVertLines(canvasContext *js.Value, xcoords []float64, ylow, yhigh float64, color *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("strokeStyle", color)
+	canvasContext.Set("strokeStyle", color.toString())
 	for _, xcoord := range xcoords {
 		addLine2Path(&path, xcoord+0.5, ylow, xcoord+0.5, yhigh)
 	}
 	canvasContext.Call("stroke", path)
 }
 
-func drawHorizLines(canvasContext *js.Value, ycoords []float64, xlow, xhigh float64, color string) {
+func drawHorizLines(canvasContext *js.Value, ycoords []float64, xlow, xhigh float64, color *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("strokeStyle", color)
+	canvasContext.Set("strokeStyle", color.toString())
 	for _, ycoord := range ycoords {
 		addLine2Path(&path, xlow, ycoord+0.5, xhigh, ycoord+0.5)
 	}
 	canvasContext.Call("stroke", path)
 }
 
-func drawLine(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, color string) {
+func drawLine(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, color *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("strokeStyle", color)
+	canvasContext.Set("strokeStyle", color.toString())
 	addLine2Path(&path, xlow, ylow, xhigh, yhigh)
 	canvasContext.Call("stroke", path)
 }
 
-func drawHorizLine(canvasContext *js.Value, xlow, xhigh, y float64, color string) {
+func drawHorizLine(canvasContext *js.Value, xlow, xhigh, y float64, color *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("strokeStyle", color)
+	canvasContext.Set("strokeStyle", color.toString())
 	addLine2Path(&path, xlow, y+0.5, xhigh, y+0.5)
 	canvasContext.Call("stroke", path)
 }
 
-func drawVertLine(canvasContext *js.Value, ylow, yhigh, x float64, color string) {
+func drawVertLine(canvasContext *js.Value, ylow, yhigh, x float64, color *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("strokeStyle", color)
+	canvasContext.Set("strokeStyle", color.toString())
 	addLine2Path(&path, x+0.5, ylow, x+0.5, yhigh)
 	canvasContext.Call("stroke", path)
 }
@@ -52,32 +52,32 @@ func addLine2Path(path *js.Value, xlow, ylow, xhigh, yhigh float64) {
 	path.Call("lineTo", xhigh, yhigh)
 }
 
-func noStrokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, fillColor string) {
+func noStrokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, fillColor *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("fillStyle", fillColor)
+	canvasContext.Set("fillStyle", fillColor.toString())
 	addRect2Path(&path, xlow, ylow, xhigh, yhigh)
 	canvasContext.Call("fill", path)
 }
 
-func noStrokeFillRectNoAdjust(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, fillColor string) {
+func noStrokeFillRectNoAdjust(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, fillColor *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("fillStyle", fillColor)
+	canvasContext.Set("fillStyle", fillColor.toString())
 	addRect2PathNoAdjust(&path, xlow, ylow, xhigh, yhigh)
 	canvasContext.Call("fill", path)
 }
 
-func strokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor, fillColor string) {
+func strokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor, fillColor *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("strokeStyle", strokeColor)
-	canvasContext.Set("fillStyle", fillColor)
+	canvasContext.Set("strokeStyle", strokeColor.toString())
+	canvasContext.Set("fillStyle", fillColor.toString())
 	addRect2Path(&path, xlow, ylow, xhigh, yhigh)
 	canvasContext.Call("stroke", path)
 	canvasContext.Call("fill", path)
 }
 
-func strokeNoFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor string) {
+func strokeNoFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, strokeColor *Color) {
 	path := path2dCtor.New()
-	canvasContext.Set("strokeStyle", strokeColor)
+	canvasContext.Set("strokeStyle", strokeColor.toString())
 	addRect2Path(&path, xlow, ylow, xhigh, yhigh)
 	canvasContext.Call("stroke", path)
 }
@@ -125,12 +125,12 @@ func setFont(canvasContext *js.Value, fontCSS string) {
 	canvasContext.Set("font", fontCSS)
 }
 
-func setFillColor(canvasContext *js.Value, fillColor string) {
-	canvasContext.Set("fillStyle", fillColor)
+func setFillColor(canvasContext *js.Value, fillColor *Color) {
+	canvasContext.Set("fillStyle", fillColor.toString())
 }
 
-func setStrokeColor(canvasContext *js.Value, strokeColor string) {
-	canvasContext.Set("strokeStyle", strokeColor)
+func setStrokeColor(canvasContext *js.Value, strokeColor *Color) {
+	canvasContext.Set("strokeStyle", strokeColor.toString())
 }
 
 func setLineWidth(canvasContext *js.Value, width float64) {

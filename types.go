@@ -140,11 +140,11 @@ type cellMeasureGetter func(int64) float64
 type Color uint32
 
 type colorSettings struct {
-	gridLine        string
-	cellFill        string
-	cellStroke      string // fonts etc.
-	cursorStroke    string
-	headerFill      string
-	selectionStroke string
-	selectionFill   string
+	gridLine        *Color
+	cellFill        *Color
+	cellStroke      *Color // fonts etc.
+	cursorStroke    *Color
+	headerFill      *Color
+	selectionStroke *Color
+	selectionFill   *Color
 }
