@@ -148,3 +148,12 @@ type colorSettings struct {
 	selectionStroke *Color
 	selectionFill   *Color
 }
+
+// textAttribs represent a cell's text attribute states like
+// bold, italics, underline.
+type textAttribs uint8
+
+// CellAttributes stores the attributes of a cell.
+type CellAttributes struct {
+	txtAttribs *textAttribs
+}
