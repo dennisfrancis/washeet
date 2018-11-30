@@ -153,7 +153,7 @@ type colorSettings struct {
 // bold, italics, underline.
 type textAttribs uint8
 
-// CellAttributes stores the attributes of a cell.
-type CellAttributes struct {
+// CellAttribs stores the attributes of a cell.
+type CellAttribs struct {
 	txtAttribs *textAttribs
 }
