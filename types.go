@@ -145,4 +145,5 @@ type textAttribs uint8
 // CellAttribs stores the attributes of a cell.
 type CellAttribs struct {
 	txtAttribs *textAttribs
+	txtAlign   TextAlignType
 }

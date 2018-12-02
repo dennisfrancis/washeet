@@ -31,6 +31,16 @@ func (self *SheetModel) GetCellAttribs(column, row int64) *washeet.CellAttribs {
 	} else if idx == 3 {
 		attrib.SetUnderline(true)
 	}
+
+	idxrow := row % int64(9)
+	if idxrow < 3 {
+		attrib.SetAlignment(washeet.AlignLeft)
+	} else if idxrow < 6 {
+		attrib.SetAlignment(washeet.AlignCenter)
+	} else {
+		attrib.SetAlignment(washeet.AlignRight)
+	}
+
 	return attrib
 }
 

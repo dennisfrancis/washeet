@@ -5,6 +5,7 @@ package washeet
 func NewDefaultCellAttribs() *CellAttribs {
 	cAttribs := &CellAttribs{
 		txtAttribs: newDefaultTextAttributes(),
+		txtAlign:   AlignRight,
 	}
 	return cAttribs
 }
@@ -37,4 +38,14 @@ func (cAttribs *CellAttribs) IsItalics() bool {
 // IsUnderline returns whether underline attribute is set or not.
 func (cAttribs *CellAttribs) IsUnderline() bool {
 	return cAttribs.txtAttribs.isUnderline()
+}
+
+// GetAlignment returns the cell text alignment setting.
+func (cAttribs *CellAttribs) GetAlignment() TextAlignType {
+	return cAttribs.txtAlign
+}
+
+// SetAlignment sets the cell text alignment setting.
+func (cAttribs *CellAttribs) SetAlignment(align TextAlignType) {
+	cAttribs.txtAlign = align
 }

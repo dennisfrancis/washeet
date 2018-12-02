@@ -93,8 +93,10 @@ func addRect2PathNoAdjust(path *js.Value, xlow, ylow, xhigh, yhigh float64) {
 }
 
 func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax float64,
-	text string, align TextAlignType,
+	text string,
+	align TextAlignType, // Used only if attribs is nil
 	attribs *CellAttribs) {
+
 	xend, yend := math.Min(xhigh, xmax), math.Min(yhigh, ymax)
 	canvasContext.Call("save")
 	path := path2dCtor.New()
@@ -103,6 +105,11 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 
 	canvasContext.Set("textBaseline", "bottom")
 	startx, starty := xlow, yhigh // yhigh assuming English like language.
+
+	if attribs != nil {
+		align = attribs.GetAlignment()
+	}
+
 	if align == AlignLeft {
 		canvasContext.Set("textAlign", "left")
 	}
