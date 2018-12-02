@@ -16,7 +16,7 @@ import (
 // Note that the spreadsheet does not become visible after calling NewSheet. For that Start() method
 // needs to be called.
 func NewSheet(canvasElement, container *js.Value, startX float64, startY float64, maxX float64, maxY float64,
-	dSrc SheetDataProvider, dSink SheetModelUpdater) *Sheet {
+	dSrc SheetDataProvider) *Sheet {
 
 	// HACK : Adjust for line width of 1.0
 	maxX -= 1.0
@@ -39,7 +39,6 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 		maxX:               maxX,
 		maxY:               maxY,
 		dataSource:         dSrc,
-		dataSink:           dSink,
 		rafLayoutData:      newLayoutData(startX, startY, maxX, maxY),
 		evtHndlrLayoutData: newLayoutData(startX, startY, maxX, maxY),
 		paintQueue:         make(chan *sheetPaintRequest, constSheetPaintQueueLength),

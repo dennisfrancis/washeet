@@ -52,17 +52,6 @@ func (self *SheetModel) TrimToNonEmptyRange(c1, r1, c2, r2 *int64) bool {
 	return true
 }
 
-// Satisfy SheetModelUpdater interface.
-
-func (self *SheetModel) SetColumnWidth(column int64, width float64) {
-}
-
-func (self *SheetModel) SetRowHeight(row int64, height float64) {
-}
-
-func (self *SheetModel) SetCellContent(row, column int64, content string) {
-}
-
 func main() {
 
 	fmt.Println("Hello washeet !")
@@ -84,7 +73,7 @@ func main() {
 	closeButton.Call("addEventListener", "click", closeHandler)
 
 	model := &SheetModel{}
-	sheet := washeet.NewSheet(&canvasEl, &container, 0.0, 0.0, width-1.0, height-1.0, model, model)
+	sheet := washeet.NewSheet(&canvasEl, &container, 0.0, 0.0, width-1.0, height-1.0, model)
 	sheet.Start()
 
 	<-quit

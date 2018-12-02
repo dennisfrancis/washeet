@@ -43,19 +43,6 @@ type SheetDataProvider interface {
 	TrimToNonEmptyRange(c1, r1, c2, r2 *int64) bool
 }
 
-// SheetModelUpdater is the interface that needs to be implemented by the user of washeet
-// which is used to let communicate the changes in the contents of the spreadsheet..
-type SheetModelUpdater interface {
-	// SetColumnWidth updates the specified column's width in the spreadsheet model implementer.
-	SetColumnWidth(column int64, width float64)
-
-	// SetColumnWidth updates the specified rows's height in the spreadsheet model implementer.
-	SetRowHeight(row int64, height float64)
-
-	// SetCellContent updates the specified cell's content in the spreadsheet model implementer.
-	SetCellContent(row, column int64, content string)
-}
-
 // markData represents a selection range as
 // {top-left-cell(column = C1, row = R1), bottom-right-cell(column = C2, row = R2) }
 type markData struct {
@@ -109,7 +96,6 @@ type Sheet struct {
 	maxY              float64
 
 	dataSource SheetDataProvider
-	dataSink   SheetModelUpdater
 
 	rafLayoutData      *layoutData
 	evtHndlrLayoutData *layoutData
