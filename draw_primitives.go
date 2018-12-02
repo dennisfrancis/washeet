@@ -92,7 +92,9 @@ func addRect2PathNoAdjust(path *js.Value, xlow, ylow, xhigh, yhigh float64) {
 	path.Call("rect", xlow, ylow, xhigh-xlow, yhigh-ylow)
 }
 
-func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax float64, text string, align TextAlignType) {
+func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax float64,
+	text string, align TextAlignType,
+	attribs *CellAttribs) {
 	xend, yend := math.Min(xhigh, xmax), math.Min(yhigh, ymax)
 	canvasContext.Call("save")
 	path := path2dCtor.New()
@@ -112,7 +114,38 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 		canvasContext.Set("textAlign", "right")
 	}
 
+	fontcss := "14px serif"
+	shouldUnderline := false
+
+	if attribs != nil {
+		prefix := ""
+		if attribs.IsItalics() {
+			prefix = "italic "
+		}
+		if attribs.IsBold() {
+			prefix += "bold "
+		}
+
+		shouldUnderline = attribs.IsUnderline()
+
+		if len(prefix) > 0 {
+			fontcss = prefix + fontcss
+		}
+	}
+
+	setFont(canvasContext, fontcss)
 	canvasContext.Call("fillText", text, startx, starty)
+	if shouldUnderline {
+		textWidth := canvasContext.Call("measureText", text).Get("width").Float()
+		//fmt.Printf("txtwidth = %.1f ", textWidth)
+		uxlow := startx
+		if align == AlignCenter {
+			uxlow -= (textWidth / 2.0)
+		} else if align == AlignRight {
+			uxlow -= textWidth
+		}
+		canvasContext.Call("fillRect", uxlow, starty-3, textWidth, 2)
+	}
 	// Kill the clip path
 	canvasContext.Call("restore")
 

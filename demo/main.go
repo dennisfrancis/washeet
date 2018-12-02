@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/dennisfrancis/washeet"
 	"math"
 	"syscall/js"
+
+	"github.com/dennisfrancis/washeet"
 )
 
 type SheetModel struct {
@@ -18,6 +19,19 @@ func (self *SheetModel) GetDisplayString(column int64, row int64) string {
 	}
 
 	return fmt.Sprintf("Cell(%d, %d)", column, row)
+}
+
+func (self *SheetModel) GetCellAttribs(column, row int64) *washeet.CellAttribs {
+	idx := column % int64(4)
+	attrib := washeet.NewDefaultCellAttribs()
+	if idx == 1 {
+		attrib.SetBold(true)
+	} else if idx == 2 {
+		attrib.SetItalics(true)
+	} else if idx == 3 {
+		attrib.SetUnderline(true)
+	}
+	return attrib
 }
 
 func (self *SheetModel) GetColumnWidth(column int64) float64 {

@@ -27,6 +27,9 @@ type SheetDataProvider interface {
 	// GetDisplayString returns the content of the cell at (column,row) as a string.
 	GetDisplayString(column int64, row int64) string
 
+	// GetCellAttribs returns cell-attributes information via CellAttribs type.
+	GetCellAttribs(column, row int64) *CellAttribs
+
 	// GetColumnWidth returns the width of "column" column in pixels.
 	GetColumnWidth(column int64) float64
 

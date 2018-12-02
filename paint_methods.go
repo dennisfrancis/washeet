@@ -21,7 +21,7 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 		drawText(&sheet.canvasContext, layout.colStartXCoords[nColIdx], sheet.origY,
 			layout.colStartXCoords[nColIdx+1], sheet.origY+constDefaultCellHeight,
 			sheet.maxX, sheet.maxY,
-			col2ColLabel(nCol), AlignCenter)
+			col2ColLabel(nCol), AlignCenter, nil)
 	}
 	// row header outline
 	strokeFillRect(&sheet.canvasContext, sheet.origX, sheet.origY,
@@ -35,7 +35,7 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 		drawText(&sheet.canvasContext, sheet.origX, layout.rowStartYCoords[nRowIdx],
 			sheet.origX+constDefaultCellWidth, layout.rowStartYCoords[nRowIdx+1],
 			sheet.maxX, sheet.maxY,
-			row2RowLabel(nRow), AlignCenter)
+			row2RowLabel(nRow), AlignCenter, nil)
 	}
 }
 
@@ -79,7 +79,9 @@ func (sheet *Sheet) drawCellRangeContents(layout *layoutData, c1, r1, c2, r2 int
 			drawText(&sheet.canvasContext, layout.colStartXCoords[cidx], layout.rowStartYCoords[ridx],
 				layout.colStartXCoords[cidx+1], layout.rowStartYCoords[ridx+1],
 				sheet.maxX, sheet.maxY,
-				sheet.dataSource.GetDisplayString(nCol, nRow), AlignRight)
+				sheet.dataSource.GetDisplayString(nCol, nRow),
+				AlignRight,
+				sheet.dataSource.GetCellAttribs(nCol, nRow))
 		}
 	}
 }
