@@ -147,4 +147,5 @@ type CellAttribs struct {
 	txtAttribs *textAttribs
 	txtAlign   TextAlignType
 	fgColor    *Color
+	bgColor    *Color
 }

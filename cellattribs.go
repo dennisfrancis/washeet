@@ -7,6 +7,7 @@ func NewDefaultCellAttribs() *CellAttribs {
 		txtAttribs: newDefaultTextAttributes(),
 		txtAlign:   AlignRight,
 		fgColor:    defaultColors.cellStroke,
+		bgColor:    defaultColors.cellFill,
 	}
 	return cAttribs
 }
@@ -58,5 +59,21 @@ func (cAttribs *CellAttribs) GetFGColor() *Color {
 
 // SetFGColor sets the foreground color.
 func (cAttribs *CellAttribs) SetFGColor(color *Color) {
+	if color == nil {
+		color = defaultColors.cellStroke
+	}
 	cAttribs.fgColor = color
+}
+
+// GetBGColor returns the background color setting.
+func (cAttribs *CellAttribs) GetBGColor() *Color {
+	return cAttribs.bgColor
+}
+
+// SetBGColor sets the background color.
+func (cAttribs *CellAttribs) SetBGColor(color *Color) {
+	if color == nil {
+		color = defaultColors.cellFill
+	}
+	cAttribs.bgColor = color
 }

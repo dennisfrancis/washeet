@@ -107,6 +107,7 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 	startx, starty := xlow, yhigh // yhigh assuming English like language.
 
 	fgcolor := defaultColors.cellStroke
+	var bgcolor *Color
 
 	if attribs != nil {
 		align = attribs.GetAlignment()
@@ -114,6 +115,8 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 		if fgcolorOverride := attribs.GetFGColor(); fgcolorOverride != nil {
 			fgcolor = fgcolorOverride
 		}
+
+		bgcolor = attribs.GetBGColor()
 	}
 
 	if align == AlignLeft {
@@ -146,6 +149,9 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 		}
 	}
 
+	if bgcolor != nil {
+		noStrokeFillRect(canvasContext, xlow, ylow, xend-1.0, yend-1.0, bgcolor)
+	}
 	setFillColor(canvasContext, fgcolor)
 	setFont(canvasContext, fontcss)
 	canvasContext.Call("fillText", text, startx, starty)

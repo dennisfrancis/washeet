@@ -15,6 +15,10 @@ var (
 	redColor   *washeet.Color = washeet.NewColor(200, 0, 0)
 	greenColor *washeet.Color = washeet.NewColor(0, 200, 0)
 	blueColor  *washeet.Color = washeet.NewColor(0, 0, 200)
+
+	lredColor   *washeet.Color = washeet.NewColor(255, 242, 230)
+	lgreenColor *washeet.Color = washeet.NewColor(204, 255, 204)
+	lblueColor  *washeet.Color = washeet.NewColor(230, 255, 255)
 )
 
 // Satisfy SheetDataProvider interface.
@@ -45,9 +49,11 @@ func (self *SheetModel) GetCellAttribs(column, row int64) *washeet.CellAttribs {
 	} else if idxrow < 6 {
 		attrib.SetAlignment(washeet.AlignCenter)
 		attrib.SetFGColor(greenColor)
+		attrib.SetBGColor(lgreenColor)
 	} else {
 		attrib.SetAlignment(washeet.AlignRight)
 		attrib.SetFGColor(blueColor)
+		attrib.SetBGColor(lblueColor)
 	}
 
 	return attrib
