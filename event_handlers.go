@@ -78,6 +78,7 @@ func (sheet *Sheet) setupMouseupHandler() {
 	})
 
 	sheet.canvasElement.Call("addEventListener", "mouseup", sheet.mouseupHandler)
+	sheet.window.Call("addEventListener", "mouseup", sheet.mouseupHandler)
 }
 
 func (sheet *Sheet) setupMousemoveHandler() {
@@ -139,6 +140,7 @@ func (sheet *Sheet) teardownMousedownHandler() {
 func (sheet *Sheet) teardownMouseupHandler() {
 
 	sheet.canvasElement.Call("removeEventListener", "mouseup", sheet.mouseupHandler)
+	sheet.window.Call("removeEventListener", "mouseup", sheet.mouseupHandler)
 	sheet.mouseupHandler.Release()
 }
 
