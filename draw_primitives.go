@@ -106,8 +106,14 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 	canvasContext.Set("textBaseline", "bottom")
 	startx, starty := xlow, yhigh // yhigh assuming English like language.
 
+	fgcolor := defaultColors.cellStroke
+
 	if attribs != nil {
 		align = attribs.GetAlignment()
+		// Override default FG color
+		if fgcolorOverride := attribs.GetFGColor(); fgcolorOverride != nil {
+			fgcolor = fgcolorOverride
+		}
 	}
 
 	if align == AlignLeft {
@@ -140,6 +146,7 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 		}
 	}
 
+	setFillColor(canvasContext, fgcolor)
 	setFont(canvasContext, fontcss)
 	canvasContext.Call("fillText", text, startx, starty)
 	if shouldUnderline {

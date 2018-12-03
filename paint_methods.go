@@ -16,7 +16,6 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 	drawVertLines(&sheet.canvasContext, layout.colStartXCoords[0:numColsInView], sheet.origY,
 		sheet.origY+constDefaultCellHeight, defaultColors.gridLine)
 	// draw col labels (center aligned)
-	setFillColor(&sheet.canvasContext, defaultColors.cellStroke)
 	for nCol, nColIdx := layout.startColumn, int64(0); nCol <= layout.endColumn; nCol, nColIdx = nCol+1, nColIdx+1 {
 		drawText(&sheet.canvasContext, layout.colStartXCoords[nColIdx], sheet.origY,
 			layout.colStartXCoords[nColIdx+1], sheet.origY+constDefaultCellHeight,
@@ -30,7 +29,6 @@ func (sheet *Sheet) drawHeaders(layout *layoutData) {
 	drawHorizLines(&sheet.canvasContext, layout.rowStartYCoords[0:numRowsInView], sheet.origX,
 		sheet.origX+constDefaultCellWidth, defaultColors.gridLine)
 	// draw row labels (center aligned)
-	setFillColor(&sheet.canvasContext, defaultColors.cellStroke)
 	for nRow, nRowIdx := layout.startRow, int64(0); nRow <= layout.endRow; nRow, nRowIdx = nRow+1, nRowIdx+1 {
 		drawText(&sheet.canvasContext, sheet.origX, layout.rowStartYCoords[nRowIdx],
 			sheet.origX+constDefaultCellWidth, layout.rowStartYCoords[nRowIdx+1],
@@ -70,8 +68,6 @@ func (sheet *Sheet) drawRange(layout *layoutData, c1, r1, c2, r2 int64) {
 func (sheet *Sheet) drawCellRangeContents(layout *layoutData, c1, r1, c2, r2 int64) {
 
 	startXIdx, endXIdx, startYIdx, endYIdx := sheet.getIndices(layout, c1, r1, c2, r2)
-
-	setFillColor(&sheet.canvasContext, defaultColors.cellStroke)
 
 	for cidx, nCol := startXIdx, c1; cidx <= endXIdx; cidx, nCol = cidx+1, nCol+1 {
 		for ridx, nRow := startYIdx, r1; ridx <= endYIdx; ridx, nRow = ridx+1, nRow+1 {

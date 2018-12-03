@@ -146,4 +146,5 @@ type textAttribs uint8
 type CellAttribs struct {
 	txtAttribs *textAttribs
 	txtAlign   TextAlignType
+	fgColor    *Color
 }

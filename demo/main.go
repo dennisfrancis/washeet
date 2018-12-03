@@ -11,6 +11,12 @@ import (
 type SheetModel struct {
 }
 
+var (
+	redColor   *washeet.Color = washeet.NewColor(200, 0, 0)
+	greenColor *washeet.Color = washeet.NewColor(0, 200, 0)
+	blueColor  *washeet.Color = washeet.NewColor(0, 0, 200)
+)
+
 // Satisfy SheetDataProvider interface.
 
 func (self *SheetModel) GetDisplayString(column int64, row int64) string {
@@ -35,10 +41,13 @@ func (self *SheetModel) GetCellAttribs(column, row int64) *washeet.CellAttribs {
 	idxrow := row % int64(9)
 	if idxrow < 3 {
 		attrib.SetAlignment(washeet.AlignLeft)
+		attrib.SetFGColor(redColor)
 	} else if idxrow < 6 {
 		attrib.SetAlignment(washeet.AlignCenter)
+		attrib.SetFGColor(greenColor)
 	} else {
 		attrib.SetAlignment(washeet.AlignRight)
+		attrib.SetFGColor(blueColor)
 	}
 
 	return attrib

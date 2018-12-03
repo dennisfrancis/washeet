@@ -6,6 +6,7 @@ func NewDefaultCellAttribs() *CellAttribs {
 	cAttribs := &CellAttribs{
 		txtAttribs: newDefaultTextAttributes(),
 		txtAlign:   AlignRight,
+		fgColor:    defaultColors.cellStroke,
 	}
 	return cAttribs
 }
@@ -48,4 +49,14 @@ func (cAttribs *CellAttribs) GetAlignment() TextAlignType {
 // SetAlignment sets the cell text alignment setting.
 func (cAttribs *CellAttribs) SetAlignment(align TextAlignType) {
 	cAttribs.txtAlign = align
+}
+
+// GetFGColor returns the foreground color setting.
+func (cAttribs *CellAttribs) GetFGColor() *Color {
+	return cAttribs.fgColor
+}
+
+// SetFGColor sets the foreground color.
+func (cAttribs *CellAttribs) SetFGColor(color *Color) {
+	cAttribs.fgColor = color
 }
