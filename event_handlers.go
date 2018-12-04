@@ -1,8 +1,12 @@
 package washeet
 
 import (
-	"math"
 	"syscall/js"
+	"time"
+)
+
+var (
+	mouseMoveLast time.Time
 )
 
 func (sheet *Sheet) setupMouseHandlers() {
@@ -92,15 +96,20 @@ func (sheet *Sheet) setupMousemoveHandler() {
 		y := event.Get("offsetY").Float()
 		layout := sheet.evtHndlrLayoutData
 		xidx, yidx := sheet.getCellIndex(layout, x, y)
-		bx, by, nearestxidx, nearestyidx := sheet.getNearestBorderXY(layout, x, y, xidx, yidx)
+		cellgridOrigX, cellGridOrigY := sheet.origX+constDefaultCellWidth, sheet.origY+constDefaultCellHeight
 
+		// bx, by, nearestxidx, nearestyidx := sheet.getNearestBorderXY(layout, x, y, xidx, yidx)
 		// bx and by are the nearest cell's start coordinates
 		// so should not show resize mouse pointer for start borders of first column(col-resize) or first row(row-resize)
-		if math.Abs(x-bx) <= 1.0 && nearestxidx >= 1 && nearestyidx == -1 {
-			sheet.canvasElement.Get("style").Set("cursor", "col-resize")
-		} else if math.Abs(y-by) <= 1.0 && nearestyidx >= 1 && nearestxidx == -1 {
-			sheet.canvasElement.Get("style").Set("cursor", "row-resize")
-		} else if x >= sheet.origX && x <= sheet.maxX && y >= sheet.origY && y <= sheet.maxY {
+
+		// We don't allow column/row resizing yet, so no point in showing these cursors.
+		// if math.Abs(x-bx) <= 1.0 && nearestxidx >= 1 && nearestyidx == -1 {
+		// 	sheet.canvasElement.Get("style").Set("cursor", "col-resize")
+		// } else if math.Abs(y-by) <= 1.0 && nearestyidx >= 1 && nearestxidx == -1 {
+		// 	sheet.canvasElement.Get("style").Set("cursor", "row-resize")
+		// }
+
+		if x >= cellgridOrigX && x <= sheet.maxX && y >= cellGridOrigY && y <= sheet.maxY {
 			sheet.canvasElement.Get("style").Set("cursor", "cell")
 
 			// selection of a range while in a drag operation
@@ -125,10 +134,69 @@ func (sheet *Sheet) setupMousemoveHandler() {
 		} else {
 			// for headers
 			sheet.canvasElement.Get("style").Set("cursor", "auto")
+			if time.Now().Sub(mouseMoveLast) < 100*time.Millisecond {
+				return
+			}
+			mouseMoveLast = time.Now()
+			if sheet.mouseState.isLeftDown() {
+				sheet.ehMutex.Lock()
+				defer sheet.ehMutex.Unlock()
+				//fmt.Printf("xidx = %d ", xidx)
+				changeCol, changeRow := int64(-1), int64(-1)
+				changeColFromStart, changeRowFromStart := true, true
+				refStartCell := sheet.selectionState.getRefStartCell()
+				col, row := int64(-1), int64(-1)
+
+				// Row change
+				if y > sheet.maxY {
+					changeRow = layout.endRow + 1
+					changeRowFromStart = false
+					row = changeRow
+				} else if y < cellGridOrigY {
+					if layout.startRow > 0 {
+						changeRow = layout.startRow - 1
+						changeRowFromStart = true
+						row = changeRow
+					}
+				} else if yidx >= 0 {
+					row = layout.startRow + yidx
+				}
+
+				// Column change
+				if x > sheet.maxX {
+					changeCol = layout.endColumn + 1
+					changeColFromStart = false
+					col = changeCol
+				} else if x < cellgridOrigX {
+					if layout.startColumn > 0 {
+						changeCol = layout.startColumn - 1
+						changeColFromStart = true
+						col = changeCol
+					}
+				} else if xidx >= 0 {
+					col = layout.startColumn + xidx
+				}
+
+				if col != int64(-1) || row != int64(-1) {
+					c1, c2 := getInOrder(col, refStartCell.col)
+					r1, r2 := getInOrder(row, refStartCell.row)
+					if changeCol != int64(-1) || changeRow != int64(-1) {
+						if sheet.paintWholeSheet(changeCol, changeRow, changeColFromStart, changeRowFromStart) {
+							if sheet.paintCellRangeSelection(c1, r1, c2, r2) {
+								sheet.selectionState.setRefCurrCell(col, row)
+							}
+						}
+					} else if sheet.paintCellRangeSelection(c1, r1, c2, r2) {
+						sheet.selectionState.setRefCurrCell(col, row)
+					}
+				}
+
+			} // End of Mouse move + down - out of sheet cases handler
 		}
 	})
 
 	sheet.canvasElement.Call("addEventListener", "mousemove", sheet.mousemoveHandler)
+	sheet.window.Call("addEventListener", "mousemove", sheet.mousemoveHandler)
 }
 
 func (sheet *Sheet) teardownMousedownHandler() {
@@ -147,6 +215,7 @@ func (sheet *Sheet) teardownMouseupHandler() {
 func (sheet *Sheet) teardownMousemoveHandler() {
 
 	sheet.canvasElement.Call("removeEventListener", "mousemove", sheet.mousemoveHandler)
+	sheet.window.Call("removeEventListener", "mousemove", sheet.mousemoveHandler)
 	sheet.canvasElement.Get("style").Set("cursor", "auto")
 	sheet.mousemoveHandler.Release()
 }
