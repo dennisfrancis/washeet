@@ -46,6 +46,9 @@ func (self *SheetModel) GetCellAttribs(column, row int64) *washeet.CellAttribs {
 	if idxrow < 3 {
 		attrib.SetAlignment(washeet.AlignLeft)
 		attrib.SetFGColor(redColor)
+		if idxrow == 2 {
+			attrib.SetFontSize(9)
+		}
 	} else if idxrow < 6 {
 		attrib.SetAlignment(washeet.AlignCenter)
 		attrib.SetFGColor(greenColor)
