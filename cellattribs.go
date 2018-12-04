@@ -8,6 +8,7 @@ func NewDefaultCellAttribs() *CellAttribs {
 		txtAlign:   AlignRight,
 		fgColor:    defaultColors.cellStroke,
 		bgColor:    defaultColors.cellFill,
+		fontSize:   uint8(14),
 	}
 	return cAttribs
 }
@@ -76,4 +77,17 @@ func (cAttribs *CellAttribs) SetBGColor(color *Color) {
 		color = defaultColors.cellFill
 	}
 	cAttribs.bgColor = color
+}
+
+// GetFontSize returns the font size setting in pixels.
+func (cAttribs *CellAttribs) GetFontSize() uint8 {
+	return cAttribs.fontSize
+}
+
+// SetFontSize sets the font size provided in pixels.
+func (cAttribs *CellAttribs) SetFontSize(size uint8) {
+	if size == 0 {
+		size = constCellFontSizePx
+	}
+	cAttribs.fontSize = size
 }

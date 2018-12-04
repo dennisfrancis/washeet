@@ -8,6 +8,7 @@ const (
 	constDefaultCellWidth      float64 = 90.0
 	constDefaultCellHeight     float64 = 25.0
 	constSheetPaintQueueLength int     = 50
+	constCellFontSizePx        uint8   = 14
 )
 
 const (

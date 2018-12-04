@@ -50,7 +50,6 @@ func NewSheet(canvasElement, container *js.Value, startX float64, startY float64
 	}
 
 	// TODO : Move these somewhere else
-	setFont(&ret.canvasContext, "14px serif")
 	setLineWidth(&ret.canvasContext, 1.0)
 
 	ret.paintWholeSheet(ret.evtHndlrLayoutData.startColumn, ret.evtHndlrLayoutData.startRow,

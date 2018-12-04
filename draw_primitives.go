@@ -1,6 +1,7 @@
 package washeet
 
 import (
+	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -130,7 +131,8 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 		canvasContext.Set("textAlign", "right")
 	}
 
-	fontcss := "14px serif"
+	fontcss := "serif"
+	fontSize := constCellFontSizePx
 	shouldUnderline := false
 
 	if attribs != nil {
@@ -143,16 +145,22 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 		}
 
 		shouldUnderline = attribs.IsUnderline()
+		fontSize = attribs.GetFontSize()
 
 		if len(prefix) > 0 {
-			fontcss = prefix + fontcss
+			fontcss = fmt.Sprintf("%s %dpx %s", prefix, fontSize, fontcss)
+		} else {
+			fontcss = fmt.Sprintf("%dpx %s", fontSize, fontcss)
 		}
+	} else {
+		fontcss = fmt.Sprintf("%dpx %s", fontSize, fontcss)
 	}
 
 	if bgcolor != nil {
 		noStrokeFillRect(canvasContext, xlow, ylow, xend-1.0, yend-1.0, bgcolor)
 	}
-	setFillColor(canvasContext, fgcolor)
+
+	setFillColor(canvasContext, fgcolor) // For font foreground and underline
 	setFont(canvasContext, fontcss)
 	canvasContext.Call("fillText", text, startx, starty)
 	if shouldUnderline {
