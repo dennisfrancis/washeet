@@ -150,3 +150,5 @@ type CellAttribs struct {
 	bgColor    *Color
 	fontSize   uint8
 }
+
+type cornerType uint8
