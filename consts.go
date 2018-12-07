@@ -26,3 +26,10 @@ const (
 	// AlignRight indicates right-alignment of cell-content.
 	AlignRight
 )
+
+const (
+	cornerTopLeft cornerType = iota
+	cornerTopRight
+	cornerBottomLeft
+	cornerBottomRight
+)
