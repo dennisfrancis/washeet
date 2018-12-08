@@ -117,3 +117,34 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 		}
 	}
 }
+
+// Warning : assumes range supplied is well-ordered
+func (sheet *Sheet) servePaintSelectionDiffRequest(colStart, rowStart, colEnd, rowEnd int64) {
+
+	if sheet.mark.c1 == colStart && sheet.mark.r1 == rowStart &&
+		sheet.mark.c2 == colEnd && sheet.mark.r2 == rowEnd {
+		// No change in selection
+		return
+	}
+
+	fixedCorner := cornerType(0xff)
+	if sheet.mark.c1 == colStart && sheet.mark.r1 == rowStart {
+		fixedCorner = cornerTopLeft
+	} else if sheet.mark.c2 == colEnd && sheet.mark.r1 == rowStart {
+		fixedCorner = cornerTopRight
+	} else if sheet.mark.c1 == colStart && sheet.mark.r2 == rowEnd {
+		fixedCorner = cornerBottomLeft
+	} else if sheet.mark.c2 == colEnd && sheet.mark.r2 == rowEnd {
+		fixedCorner = cornerBottomRight
+	} else {
+		panic("fixed corner finder bug")
+	}
+
+	// TODO: implement the selection diff draw logic.
+	if fixedCorner == cornerTopLeft {
+	}
+
+	// Update mark to new range after everything is finished.
+	sheet.mark.c1, sheet.mark.c2 = colStart, colEnd
+	sheet.mark.r1, sheet.mark.r2 = rowStart, rowEnd
+}
