@@ -6,17 +6,6 @@
           margin: 0;
           padding: 0;
       }
-      canvas, div {
-          margin:0;
-          padding:0;
-      }
-	  #washeet {
-	      position: absolute;
-	      z-index:5;
-	  }
-	  #container {
-	      position: relative;
-	  }
     </style>
     <script src="wasm_exec.js"></script>
     <script>
@@ -29,8 +18,6 @@
 
   <body>
     <button id="close-button">Quit</button><br>
-	<div id="container">
-      <canvas id="washeet" tabindex="1" style="outline:none"></canvas>
-	</div>
+	<div id="container"></div>
   </body>
 </html>
