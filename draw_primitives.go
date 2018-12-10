@@ -157,7 +157,7 @@ func drawText(canvasContext *js.Value, xlow, ylow, xhigh, yhigh, xmax, ymax floa
 	}
 
 	if bgcolor != nil {
-		noStrokeFillRect(canvasContext, xlow, ylow, xend-1.0, yend-1.0, bgcolor)
+		noStrokeFillRect(canvasContext, xlow, ylow, xend, yend, bgcolor)
 	}
 
 	setFillColor(canvasContext, fgcolor) // For font foreground and underline
