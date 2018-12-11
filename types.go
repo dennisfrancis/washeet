@@ -43,6 +43,18 @@ type SheetDataProvider interface {
 	TrimToNonEmptyRange(c1, r1, c2, r2 *int64) bool
 }
 
+// SheetNotifier is the interface via which client-users of washeet can
+// notify which cell/range has changed its contents.
+type SheetNotifier interface {
+	// UpdateCell call tells washeet that the specified cell contents have changed
+	// and needs redrawing.
+	UpdateCell(column, row int64)
+
+	// UpdateRange call tells washeet that the specified range's contents have changed
+	// and needs redrawing.
+	UpdateRange(startColumn, startRow, endColumn, endRow int64)
+}
+
 // markData represents a selection range as
 // {top-left-cell(column = C1, row = R1), bottom-right-cell(column = C2, row = R2) }
 type markData struct {
