@@ -86,3 +86,13 @@ func (sheet *Sheet) Stop() {
 	sheet.rafWorkerCallback.Release()
 	sheet.teardownCanvas()
 }
+
+// UpdateRange redraws the contents of the provided range.
+func (sheet *Sheet) UpdateRange(startColumn, startRow, endColumn, endRow int64) {
+	sheet.paintCellRange(startColumn, startRow, endColumn, endRow)
+}
+
+// UpdateCell redraws the contents of the provided cell location.
+func (sheet *Sheet) UpdateCell(column, row int64) {
+	sheet.paintCell(column, row)
+}
