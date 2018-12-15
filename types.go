@@ -93,6 +93,15 @@ type layoutData struct {
 	layoutFromStartRow bool
 }
 
+type canvasStoreType struct {
+	sheetCanvasElement     js.Value
+	sheetCanvasContext     js.Value
+	selectionCanvasElement js.Value
+	selectionCanvasContext js.Value
+
+	foregroundCanvasElement js.Value
+}
+
 // Sheet represents the spreadsheet user-interface.
 type Sheet struct {
 	document          js.Value
