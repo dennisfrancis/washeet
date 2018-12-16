@@ -108,6 +108,7 @@ type Sheet struct {
 	window            js.Value
 	navigator         js.Value
 	container         *js.Value
+	canvasStore       canvasStoreType
 	canvasElement     js.Value
 	canvasContext     js.Value
 	clipboardTextArea js.Value
