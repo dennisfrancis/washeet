@@ -47,7 +47,8 @@ func NewSheet(container *js.Value, width float64, height float64, dSrc SheetData
 	ret.setupCanvas(width, height)
 
 	// TODO : Move these somewhere else
-	setLineWidth(&ret.canvasContext, 1.0)
+	setLineWidth(&ret.canvasStore.sheetCanvasContext, 1.0)
+	setLineWidth(&ret.canvasStore.selectionCanvasContext, 1.0)
 
 	ret.paintWholeSheet(ret.evtHndlrLayoutData.startColumn, ret.evtHndlrLayoutData.startRow,
 		ret.evtHndlrLayoutData.layoutFromStartCol, ret.evtHndlrLayoutData.layoutFromStartRow)

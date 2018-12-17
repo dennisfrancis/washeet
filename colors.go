@@ -45,12 +45,13 @@ func (color *Color) toString() string {
 
 var (
 	defaultColors = colorSettings{
-		gridLine:        newRGBAColor(200, 200, 200, 255), // "rgba(200, 200, 200, 1.0)"
-		cellFill:        newRGBAColor(255, 255, 255, 255), // "rgba(255, 255, 255, 1.0)"
-		cellStroke:      newRGBAColor(0, 0, 0, 255),       // "rgba(0, 0, 0, 1.0)"
-		cursorStroke:    newRGBAColor(0, 0, 0, 255),       // "rgba(0, 0, 0, 1.0)"
-		headerFill:      newRGBAColor(240, 240, 240, 255), // "rgba(240, 240, 240, 1.0)"
-		selectionStroke: newRGBAColor(100, 156, 244, 255), // "rgba(100, 156, 244, 1.0)"
-		selectionFill:   newRGBAColor(100, 156, 244, 51),  // "rgba(100, 156, 244, 0.2)"
+		gridLine:           newRGBAColor(200, 200, 200, 255), // "rgba(200, 200, 200, 1.0)"
+		cellFill:           newRGBAColor(255, 255, 255, 255), // "rgba(255, 255, 255, 1.0)"
+		cellStroke:         newRGBAColor(0, 0, 0, 255),       // "rgba(0, 0, 0, 1.0)"
+		cursorStroke:       newRGBAColor(0, 0, 0, 255),       // "rgba(0, 0, 0, 1.0)"
+		headerFill:         newRGBAColor(240, 240, 240, 255), // "rgba(240, 240, 240, 1.0)"
+		selectionStroke:    newRGBAColor(100, 156, 244, 255), // "rgba(100, 156, 244, 1.0)"
+		selectionFill:      newRGBAColor(100, 156, 244, 51),  // "rgba(100, 156, 244, 0.2)"
+		selectionClearFill: newRGBAColor(0, 0, 0, 0),         // "rgba(0, 0, 0, 0.0)"
 	}
 )

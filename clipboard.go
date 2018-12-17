@@ -24,7 +24,7 @@ func (sheet *Sheet) copySelectionToClipboardSync() {
 	sheet.clipboardTextArea.Set("value", sheet.getMarkedTextTSV())
 	sheet.clipboardTextArea.Call("select")
 	sheet.document.Call("execCommand", "copy")
-	sheet.canvasElement.Call("focus")
+	sheet.canvasStore.foregroundCanvasElement.Call("focus")
 	// Restore the view as canvas.focus() will make the
 	// document scroll to begining of the canvas
 	sheet.window.Call("scrollTo", x, y)

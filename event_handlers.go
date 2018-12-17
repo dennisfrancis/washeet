@@ -58,7 +58,7 @@ func (sheet *Sheet) setupMousedownHandler() {
 		}
 	})
 
-	sheet.canvasElement.Call("addEventListener", "mousedown", sheet.mousedownHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "mousedown", sheet.mousedownHandler)
 }
 
 func (sheet *Sheet) setupMouseupHandler() {
@@ -81,7 +81,7 @@ func (sheet *Sheet) setupMouseupHandler() {
 		*/
 	})
 
-	sheet.canvasElement.Call("addEventListener", "mouseup", sheet.mouseupHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "mouseup", sheet.mouseupHandler)
 	sheet.window.Call("addEventListener", "mouseup", sheet.mouseupHandler)
 }
 
@@ -104,13 +104,13 @@ func (sheet *Sheet) setupMousemoveHandler() {
 
 		// We don't allow column/row resizing yet, so no point in showing these cursors.
 		// if math.Abs(x-bx) <= 1.0 && nearestxidx >= 1 && nearestyidx == -1 {
-		// 	sheet.canvasElement.Get("style").Set("cursor", "col-resize")
+		// 	sheet.canvasStore.foregroundCanvasElement.Get("style").Set("cursor", "col-resize")
 		// } else if math.Abs(y-by) <= 1.0 && nearestyidx >= 1 && nearestxidx == -1 {
-		// 	sheet.canvasElement.Get("style").Set("cursor", "row-resize")
+		// 	sheet.canvasStore.foregroundCanvasElement.Get("style").Set("cursor", "row-resize")
 		// }
 
 		if x >= cellgridOrigX && x <= sheet.maxX && y >= cellGridOrigY && y <= sheet.maxY {
-			sheet.canvasElement.Get("style").Set("cursor", "cell")
+			sheet.canvasStore.foregroundCanvasElement.Get("style").Set("cursor", "cell")
 
 			// selection of a range while in a drag operation
 			if sheet.mouseState.isLeftDown() {
@@ -133,7 +133,7 @@ func (sheet *Sheet) setupMousemoveHandler() {
 			}
 		} else {
 			// for headers
-			sheet.canvasElement.Get("style").Set("cursor", "auto")
+			sheet.canvasStore.foregroundCanvasElement.Get("style").Set("cursor", "auto")
 			if time.Now().Sub(mouseMoveLast) < 100*time.Millisecond {
 				return
 			}
@@ -195,28 +195,28 @@ func (sheet *Sheet) setupMousemoveHandler() {
 		}
 	})
 
-	sheet.canvasElement.Call("addEventListener", "mousemove", sheet.mousemoveHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "mousemove", sheet.mousemoveHandler)
 	sheet.window.Call("addEventListener", "mousemove", sheet.mousemoveHandler)
 }
 
 func (sheet *Sheet) teardownMousedownHandler() {
 
-	sheet.canvasElement.Call("removeEventListener", "mousedown", sheet.mousedownHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("removeEventListener", "mousedown", sheet.mousedownHandler)
 	sheet.mousedownHandler.Release()
 }
 
 func (sheet *Sheet) teardownMouseupHandler() {
 
-	sheet.canvasElement.Call("removeEventListener", "mouseup", sheet.mouseupHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("removeEventListener", "mouseup", sheet.mouseupHandler)
 	sheet.window.Call("removeEventListener", "mouseup", sheet.mouseupHandler)
 	sheet.mouseupHandler.Release()
 }
 
 func (sheet *Sheet) teardownMousemoveHandler() {
 
-	sheet.canvasElement.Call("removeEventListener", "mousemove", sheet.mousemoveHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("removeEventListener", "mousemove", sheet.mousemoveHandler)
 	sheet.window.Call("removeEventListener", "mousemove", sheet.mousemoveHandler)
-	sheet.canvasElement.Get("style").Set("cursor", "auto")
+	sheet.canvasStore.foregroundCanvasElement.Get("style").Set("cursor", "auto")
 	sheet.mousemoveHandler.Release()
 }
 
@@ -256,7 +256,7 @@ func (sheet *Sheet) setupKeydownHandler() {
 		}
 	})
 
-	sheet.canvasElement.Call("addEventListener", "keydown", sheet.keydownHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "keydown", sheet.keydownHandler)
 }
 
 func (sheet *Sheet) teardownKeydownHandler() {
@@ -264,7 +264,7 @@ func (sheet *Sheet) teardownKeydownHandler() {
 		return
 	}
 
-	sheet.canvasElement.Call("removeEventListener", "keydown", sheet.keydownHandler)
+	sheet.canvasStore.foregroundCanvasElement.Call("removeEventListener", "keydown", sheet.keydownHandler)
 	sheet.keydownHandler.Release()
 }
 

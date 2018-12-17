@@ -53,6 +53,10 @@ func addLine2Path(path *js.Value, xlow, ylow, xhigh, yhigh float64) {
 	path.Call("lineTo", xhigh, yhigh)
 }
 
+func clearRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64) {
+	canvasContext.Call("clearRect", xlow, ylow, 1.0+xhigh-xlow, 1.0+yhigh-ylow)
+}
+
 func noStrokeFillRect(canvasContext *js.Value, xlow, ylow, xhigh, yhigh float64, fillColor *Color) {
 	path := path2dCtor.New()
 	canvasContext.Set("fillStyle", fillColor.toString())

@@ -109,8 +109,6 @@ type Sheet struct {
 	navigator         js.Value
 	container         *js.Value
 	canvasStore       canvasStoreType
-	canvasElement     js.Value
-	canvasContext     js.Value
 	clipboardTextArea js.Value
 	origX             float64
 	origY             float64
@@ -151,13 +149,14 @@ type cellMeasureGetter func(int64) float64
 type Color uint32
 
 type colorSettings struct {
-	gridLine        *Color
-	cellFill        *Color
-	cellStroke      *Color // fonts etc.
-	cursorStroke    *Color
-	headerFill      *Color
-	selectionStroke *Color
-	selectionFill   *Color
+	gridLine           *Color
+	cellFill           *Color
+	cellStroke         *Color // fonts etc.
+	cursorStroke       *Color
+	headerFill         *Color
+	selectionStroke    *Color
+	selectionFill      *Color
+	selectionClearFill *Color
 }
 
 // textAttribs represent a cell's text attribute states like

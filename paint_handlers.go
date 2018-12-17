@@ -60,12 +60,14 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 	}
 
 	rafLD := sheet.rafLayoutData
+	selectionCanvasContext := &sheet.canvasStore.selectionCanvasContext
 
 	// Undo the current selection
 	if !(sheet.mark.c1 > rafLD.endColumn || sheet.mark.c2 < rafLD.startColumn || sheet.mark.r1 > rafLD.endRow || sheet.mark.r2 < rafLD.startRow) {
 		// if current selection is in view at least partially
 		c1, r1, c2, r2 := sheet.trimRangeToView(rafLD, sheet.mark.c1, sheet.mark.r1, sheet.mark.c2, sheet.mark.r2)
-		sheet.servePaintCellRangeRequest(c1, r1, c2, r2)
+		_, _, _, _, xlow, xhigh, ylow, yhigh := sheet.getIndicesAndRect(rafLD, c1, r1, c2, r2)
+		clearRect(selectionCanvasContext, xlow, ylow, xhigh, yhigh)
 	}
 
 	sheet.mark.c1, sheet.mark.c2 = colStart, colEnd
@@ -82,7 +84,7 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 	ci1, ci2, ri1, ri2, xlow, xhigh, ylow, yhigh := sheet.getIndicesAndRect(rafLD, c1, r1, c2, r2)
 
 	if !sheet.mark.isSingleCell() {
-		strokeFillRect(&sheet.canvasContext, xlow, ylow, xhigh, yhigh,
+		strokeFillRect(selectionCanvasContext, xlow, ylow, xhigh, yhigh,
 			defaultColors.selectionStroke, defaultColors.selectionFill)
 	}
 
@@ -102,9 +104,9 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 		yStartCellBeg := math.Max(ylow, rafLD.rowStartYCoords[startCellRowIdx])
 		xStartCellEnd := math.Min(rafLD.colStartXCoords[startCellColIdx+1], sheet.maxX)
 		yStartCellEnd := math.Min(rafLD.rowStartYCoords[startCellRowIdx+1], sheet.maxY)
-		strokeNoFillRect(&sheet.canvasContext, xStartCellBeg, yStartCellBeg, xStartCellEnd,
+		strokeNoFillRect(selectionCanvasContext, xStartCellBeg, yStartCellBeg, xStartCellEnd,
 			yStartCellEnd, defaultColors.cursorStroke)
-		strokeNoFillRect(&sheet.canvasContext, xStartCellBeg+1, yStartCellBeg+1, xStartCellEnd-1,
+		strokeNoFillRect(selectionCanvasContext, xStartCellBeg+1, yStartCellBeg+1, xStartCellEnd-1,
 			yStartCellEnd-1, defaultColors.cursorStroke)
 	}
 
@@ -112,7 +114,7 @@ func (sheet *Sheet) servePaintSelectionRequest(colStart, rowStart, colEnd, rowEn
 		xLastCellEnd := rafLD.colStartXCoords[ci2+1]
 		yLastCellEnd := rafLD.rowStartYCoords[ri2+1]
 		if xLastCellEnd <= sheet.maxX && yLastCellEnd <= sheet.maxY {
-			strokeFillRect(&sheet.canvasContext, xLastCellEnd-6, yLastCellEnd-6, xLastCellEnd,
+			strokeFillRect(selectionCanvasContext, xLastCellEnd-6, yLastCellEnd-6, xLastCellEnd,
 				yLastCellEnd, defaultColors.cursorStroke, defaultColors.cursorStroke)
 		}
 	}
