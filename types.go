@@ -121,7 +121,7 @@ type Sheet struct {
 	evtHndlrLayoutData *layoutData
 
 	paintQueue        chan *sheetPaintRequest
-	rafWorkerCallback js.Callback
+	rafWorkerCallback js.Func
 
 	mark markData
 
@@ -133,11 +133,11 @@ type Sheet struct {
 	mouseState     mouseState
 	selectionState selectionState
 
-	mousedownHandler js.Callback
-	mouseupHandler   js.Callback
-	mousemoveHandler js.Callback
+	mousedownHandler js.Func
+	mouseupHandler   js.Func
+	mousemoveHandler js.Func
 
-	keydownHandler js.Callback
+	keydownHandler js.Func
 
 	layoutFromStartCol bool
 	layoutFromStartRow bool

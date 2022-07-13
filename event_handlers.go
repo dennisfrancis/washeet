@@ -34,7 +34,7 @@ func (sheet *Sheet) setupMousedownHandler() {
 		return
 	}
 
-	sheet.mousedownHandler = js.NewCallback(func(args []js.Value) {
+	sheet.mousedownHandler = js.FuncOf(func(this js.Value, args []js.Value) any {
 		event := args[0]
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
@@ -45,7 +45,7 @@ func (sheet *Sheet) setupMousedownHandler() {
 			xi, yi := sheet.getCellIndex(layout, x, y)
 			//fmt.Printf("cell index = (%d, %d)\n", xi, yi)
 			if xi < 0 || yi < 0 {
-				return
+				return nil
 			}
 			sheet.mouseState.setLeftDown()
 			col, row := layout.startColumn+xi, layout.startRow+yi
@@ -56,6 +56,7 @@ func (sheet *Sheet) setupMousedownHandler() {
 		} else if buttonCode == 2 {
 			sheet.mouseState.setRightDown()
 		}
+		return nil
 	})
 
 	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "mousedown", sheet.mousedownHandler)
@@ -66,7 +67,7 @@ func (sheet *Sheet) setupMouseupHandler() {
 		return
 	}
 
-	sheet.mouseupHandler = js.NewCallback(func(args []js.Value) {
+	sheet.mouseupHandler = js.FuncOf(func(this js.Value, args []js.Value) any {
 		event := args[0]
 		buttonCode := event.Get("button").Int()
 		if buttonCode == 0 {
@@ -79,6 +80,7 @@ func (sheet *Sheet) setupMouseupHandler() {
 			y := event.Get("offsetY").Float()
 			fmt.Printf("mouseup at (%f, %f)\n", x, y)
 		*/
+		return nil
 	})
 
 	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "mouseup", sheet.mouseupHandler)
@@ -90,7 +92,7 @@ func (sheet *Sheet) setupMousemoveHandler() {
 		return
 	}
 
-	sheet.mousemoveHandler = js.NewCallback(func(args []js.Value) {
+	sheet.mousemoveHandler = js.FuncOf(func(this js.Value, args []js.Value) any {
 		event := args[0]
 		x := event.Get("offsetX").Float()
 		y := event.Get("offsetY").Float()
@@ -121,7 +123,7 @@ func (sheet *Sheet) setupMousemoveHandler() {
 				col, row := layout.startColumn+xidx, layout.startRow+yidx
 
 				if refCurrCell.col == col && refCurrCell.row == row {
-					return
+					return nil
 				}
 
 				c1, c2 := getInOrder(refStartCell.col, col)
@@ -135,7 +137,7 @@ func (sheet *Sheet) setupMousemoveHandler() {
 			// for headers
 			sheet.canvasStore.foregroundCanvasElement.Get("style").Set("cursor", "auto")
 			if time.Now().Sub(mouseMoveLast) < 100*time.Millisecond {
-				return
+				return nil
 			}
 			mouseMoveLast = time.Now()
 			if sheet.mouseState.isLeftDown() {
@@ -193,6 +195,8 @@ func (sheet *Sheet) setupMousemoveHandler() {
 
 			} // End of Mouse move + down - out of sheet cases handler
 		}
+
+		return nil
 	})
 
 	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "mousemove", sheet.mousemoveHandler)
@@ -242,7 +246,11 @@ func (sheet *Sheet) setupKeydownHandler() {
 	}
 
 	// NewEventCallback is used so that we can prevent window scrolling. event.preventDefault calls does not work
-	sheet.keydownHandler = js.NewEventCallback(js.PreventDefault|js.StopPropagation|js.StopImmediatePropagation, func(event js.Value) {
+	sheet.keydownHandler = js.FuncOf(func(this js.Value, args []js.Value) any {
+		event := args[0]
+		event.Call("preventDefault")
+		event.Call("stopPropagation")
+		event.Call("stopImmediatePropagation")
 		sheet.ehMutex.Lock()
 		defer sheet.ehMutex.Unlock()
 		keycode := event.Get("keyCode").Int()
@@ -254,6 +262,7 @@ func (sheet *Sheet) setupKeydownHandler() {
 			// some command like Ctrl+C, Ctrl+V
 			sheet.keyboardCommandHandler(keycode)
 		}
+		return nil
 	})
 
 	sheet.canvasStore.foregroundCanvasElement.Call("addEventListener", "keydown", sheet.keydownHandler)

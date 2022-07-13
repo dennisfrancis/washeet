@@ -47,7 +47,7 @@ lint:
 
 check:
 	@echo -e "$(CHECKSTART)"
-	@GOOS=js GOARCH=wasm go test -cover -exec="${GOROOT}/misc/wasm/go_js_wasm_exec" \
+	@GOOS=js GOARCH=wasm go test -cover -exec="$$(go env GOROOT)/misc/wasm/go_js_wasm_exec" \
 	 && (echo -e "$(CHECKSUCCESS)") || (echo -e "$(CHECKFAILED)" && false)
 
 build:
