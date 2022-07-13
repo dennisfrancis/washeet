@@ -11,22 +11,22 @@ func (sheet *Sheet) launchRenderer() {
 		return
 	}
 
-	sheet.rafWorkerCallback = js.NewCallback(sheet.rafWorker)
+	sheet.rafWorkerCallback = js.FuncOf(sheet.rafWorker)
 	js.Global().Call("requestAnimationFrame", sheet.rafWorkerCallback)
 }
 
-func (sheet *Sheet) rafWorker(args []js.Value) {
+func (sheet *Sheet) rafWorker(this js.Value, args []js.Value) any {
 
 	if sheet.stopSignal {
 		// This will be the last rafWorker() call to be made
 		<-sheet.stopRequest
-		return
+		return nil
 	}
 
 	select {
 	case <-sheet.stopRequest:
 		// This will be the last rafWorker() call to be made
-		return
+		return nil
 	case request := <-sheet.paintQueue:
 		sheet.servePaintRequest(request)
 		js.Global().Call("requestAnimationFrame", sheet.rafWorkerCallback)
@@ -34,4 +34,6 @@ func (sheet *Sheet) rafWorker(args []js.Value) {
 		time.Sleep(20 * time.Millisecond)
 		js.Global().Call("requestAnimationFrame", sheet.rafWorkerCallback)
 	}
+
+	return nil
 }

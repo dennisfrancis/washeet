@@ -212,8 +212,9 @@ func main() {
 	closeButton := doc.Call("getElementById", "close-button")
 	quit := make(chan bool)
 
-	closeHandler := js.NewCallback(func(args []js.Value) {
+	closeHandler := js.FuncOf(func(this js.Value, args []js.Value) any {
 		quit <- true
+		return nil
 	})
 	closeButton.Call("addEventListener", "click", closeHandler)
 
